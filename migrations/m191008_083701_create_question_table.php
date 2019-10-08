@@ -5,7 +5,7 @@ use yii\db\Migration;
 /**
  * Handles the creation of table `{{%question}}`.
  */
-class m191007_142026_create_question_table extends Migration
+class m191008_083701_create_question_table extends Migration
 {
     /**
      * {@inheritdoc}
@@ -17,9 +17,9 @@ class m191007_142026_create_question_table extends Migration
             'quiz_id'=>$this->integer(),
             'name'=>$this->STRING(255),
             'hint'=>$this->string(255),
-            'max-ans'=>$this->integer(2),
-            'created-at'=>$this->integer(11),
-            'updated-at'=>$this->integer(11),
+            'max_ans'=>$this->integer(2),
+            'created_at'=>$this->integer(11),
+            'updated_at'=>$this->integer(11),
         ]);
         $this->addForeignKey(
             'fk-question-quiz_id',
