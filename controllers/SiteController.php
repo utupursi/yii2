@@ -78,21 +78,21 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-       $user=new User1;
-//        $user->on(User1::USER_REGISTERED, function($event){
-//           echo $event->name;
-//        });
-//
-//        $user->on(User1::USER_REGISTERED,[$user,'method']);
-//
-//        $user->on(User1::USER_REGISTERED,function($event) {
-//          echo 't';
-//        });
-//            $user->trigger(User1::USER_REGISTERED);
-    echo $user->property1;
-    echo $user->property2;
-    echo $user->foo();
-      die;
+//       $user=new User1;
+////        $user->on(User1::USER_REGISTERED, function($event){
+////           echo $event->name;
+////        });
+////
+////        $user->on(User1::USER_REGISTERED,[$user,'method']);
+////
+////        $user->on(User1::USER_REGISTERED,function($event) {
+////          echo 't';
+////        });
+////            $user->trigger(User1::USER_REGISTERED);
+//    echo $user->property1;
+//    echo $user->property2;
+//    echo $user->foo();
+//      die;
 
         return $this->render('index');
 

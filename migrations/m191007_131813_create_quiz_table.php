@@ -14,8 +14,10 @@ class m191007_131813_create_quiz_table extends Migration
     {
         $this->createTable('{{%quiz}}', [
             'id' => $this->primaryKey(),
-            'min_correct'=> $this->int(2),
-            'created_at'=>$this->int(11),
+            'min_correct'=> $this->integer(2),
+            'created_at'=>$this->integer(11),
+            'updated_at'=>$this->integer(11),
+            'max_question'=>$this->integer(2)
         ]);
     }
 
