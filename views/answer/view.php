@@ -1,65 +1,44 @@
-
 <?php
+
 use yii\helpers\Html;
-use yii\grid\GridView;
-use yii\web\Request;
-use yii\widgets\ActiveForm;
+use yii\widgets\DetailView;
+
 /* @var $this yii\web\View */
-/* @var $searchModel app\models\QuestionSearch */
-/* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $model app\models\Quiz */
 
-$this->title = 'Questions';
+$this->title = $model->id;
+$this->params['breadcrumbs'][] = ['label' => 'Quizzes', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+\yii\web\YiiAsset::register($this);
 ?>
-<style>
-    #f{
-        background-color:papayawhip;
-        width:300px;
-        border-radius:5px;
-        margin-left:2px;
-    }
-</style>
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<!------ Include the above in your HEAD tag ---------->
+<div class="quiz-view">
 
-<div class="container-fluid bg-info">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><span class="label label-warning" id="qid">2</span><input id="f" name="q_answer" value="<?php echo $model->name;?>" ></label>
-                </h3>
-            </div>
-            <div class="modal-body">
-                <div class="col-xs-3 col-xs-offset-5">
-                    <div id="loadbar" style="display: none;">
-                        <div class="blockG" id="rotateG_01"></div>
-                        <div class="blockG" id="rotateG_02"></div>
-                        <div class="blockG" id="rotateG_03"></div>
-                        <div class="blockG" id="rotateG_04"></div>
-                        <div class="blockG" id="rotateG_05"></div>
-                        <div class="blockG" id="rotateG_06"></div>
-                        <div class="blockG" id="rotateG_07"></div>
-                        <div class="blockG" id="rotateG_08"></div>
-                    </div>
-                </div>
+    <h1><?= Html::encode($this->title) ?></h1>
 
-                <div class="quiz" id="quiz" data-toggle="buttons">
+    <p >
+        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
+            'class' => 'btn btn-danger',
+            'data' => [
+                'confirm' => 'Are you sure you want to delete this item?',
+                'method' => 'post',
+            ],
+        ]) ?>
+    </p>
+    <?= DetailView::widget([
+        'model' => $model,
+        'attributes' => [
+            'id',
+            'question_id',
+            'is_correct',
+            'name',
+            'created_at',
+            'updated_at',
+        ],
+    ]) ?>
 
-                    <?php $number=$model->max_ans;
-                    for($i=0;$i<$number;$i++):?>
-                    <input  name="q_answer" value="" class="element-animation2 btn btn-lg btn-primary btn-block"></label>
-<?php endfor;?>
-                </div>
-            </div>
 
-            <div class="form-group">
-                <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
-            </div>
-            <div class="modal-footer text-muted">
-                <span id="answer"></span>
-            </div>
-        </div>
-    </div>
+
+
+
 </div>

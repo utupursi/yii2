@@ -3,7 +3,9 @@
 namespace app\controllers;
 
 use app\models\Answer;
+use app\models\AnswerSearch;
 use Yii;
+use app\models\Quiz;
 use app\models\Question;
 use app\models\QuestionSearch;
 use yii\web\Controller;
@@ -34,10 +36,10 @@ class QuestionController extends Controller
      * Lists all Question models.
      * @return mixed
      */
-    public function actionIndex($id)
+    public function actionIndex()
     {
         $searchModel = new QuestionSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams,$id);
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -53,15 +55,16 @@ class QuestionController extends Controller
      */
     public function actionView($id)
     {
-        $model = new Answer();
-        if ($model->load(Yii::$app->request->post())) {
-             $model->question_id=$id;
-            if($model->save()){
-                return $this->redirect(['index', 'id' => $model->id]);
-            }
-        }
-        return $this->render('view',[
-            'model'=>$this->findModel($id),
+
+
+        $searchModel = new  AnswerSearch();
+        $dataProvider = $searchModel->search1(Yii::$app->request->queryParams, $id);
+
+
+        return $this->render('view', [
+            'model' => $this->findModel($id),
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
 
     }
@@ -71,19 +74,31 @@ class QuestionController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate($id)
+    public function actionCreate()
     {
         $model = new Question();
+        $model1 = new Quiz();
+
 
         if ($model->load(Yii::$app->request->post())) {
-            $model->quiz_id=$id;
-            if($model->save()){
-                return $this->redirect(['view', 'id' => $model->id]);
+            $count = Question::find()->where(['quiz_id' => $model->quiz_id])->count();
+            $question = Quiz::findOne($model->quiz_id);
+
+            if (($question->max_question) > $count) {
+                if ($model->save()) {
+                    return $this->redirect(['index', 'id' => $model->quiz_id]);
+                }
             }
+        }
+        if (Yii::$app->request->isPost) {
+            $error = 'Number of questions more than limited number';
+        } else {
+            $error = '';
         }
 
         return $this->render('create', [
             'model' => $model,
+            'error' => $error,
         ]);
     }
 
@@ -97,9 +112,8 @@ class QuestionController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['index', 'id' => $model->id]);
         }
 
         return $this->render('update', [

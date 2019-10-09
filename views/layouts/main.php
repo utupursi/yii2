@@ -46,6 +46,10 @@ AppAsset::register($this);
             ['label' => 'About', 'url' => ['/site/about']],
             ['label' => 'Contact', 'url' => ['/site/contact']],
             ['label' => 'Person', 'url' => [Url::toRoute(['person/person', 'id' => 100])]],
+            ['label'=>'Quiz','url'=>['/quiz/index']],
+            ['label'=>'Question','url'=>['/question/index']],
+            ['label'=>'Answer','url'=>['/answer/index']],
+
             Yii::$app->user->isGuest ? (
                 ['label' => 'Login', 'url' => ['/site/login']]
 

@@ -5,6 +5,7 @@ namespace app\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\validators\UniqueValidator;
 
 /**
  * This is the model class for table "quiz".
@@ -48,6 +49,7 @@ class Quiz extends \yii\db\ActiveRecord
         return [
             [['min_correct', 'created_at', 'updated_at', 'max_question'], 'integer'],
             [['subject'], 'string', 'max' => 255],
+            [['subject'],'unique'],
         ];
     }
 

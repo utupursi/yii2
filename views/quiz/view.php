@@ -2,7 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
-
+use yii\grid\GridView;
 /* @var $this yii\web\View */
 /* @var $model app\models\Quiz */
 
@@ -36,5 +36,23 @@ $this->params['breadcrumbs'][] = $this->title;
             'subject',
         ],
     ]) ?>
+
+
+
+    <?= GridView::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $searchModel,
+        'columns' => [
+            ['class' => 'yii\grid\SerialColumn'],
+
+            'id',
+            'name',
+            'hint',
+            'max_ans',
+            //'subject',
+
+            ['class' => 'yii\grid\ActionColumn'],
+        ],
+    ]); ?>
 
 </div>

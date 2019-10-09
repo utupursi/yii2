@@ -1,21 +1,29 @@
 <?php
 
 use yii\helpers\Html;
+use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Quiz */
-
-$this->title = 'Update Quiz: ' . $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Quizzes', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+/* @var $form yii\widgets\ActiveForm */
 ?>
-<div class="quiz-update">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+<div class="quiz-form">
 
-    <?= $this->render('_form', [
-        'model' => $model,
-    ]) ?>
+    <?php $form = ActiveForm::begin(); ?>
+
+    <?= $form->field($model, 'subject')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'min_correct')->textInput() ?>
+
+    <?= $form->field($model, 'max_question')->textInput() ?>
+
+
+
+    <div class="form-group">
+        <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
+    </div>
+
+    <?php ActiveForm::end(); ?>
 
 </div>

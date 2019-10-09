@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Question;
 use Yii;
 use app\models\Answer;
 use app\models\AnswerSearch;
@@ -52,15 +53,18 @@ class AnswerController extends Controller
      */
     public function actionView($id)
     {
-        $model = new Answer();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['index', 'id' => $model->id]);
-        }
+
+        $searchModel = new  AnswerSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
 
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
+
     }
 
     /**
@@ -68,16 +72,31 @@ class AnswerController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
+
     public function actionCreate()
     {
         $model = new Answer();
+        $model1 = new Question();
+        $count = Answer::find()->count();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['index', 'id' => $model->id]);
+            if ($model->load(Yii::$app->request->post())) {
+                $question = Question::findOne($model->question_id);
+
+            if (($question->max_ans) > $count) {
+                if ($model->save()) {
+                    return $this->redirect(['index', 'id' => $model->question_id]);
+                }
+            }
+        }
+        if (Yii::$app->request->isPost) {
+            $error = 'Number of answers more than limited number';
+        } else {
+            $error = '';
         }
 
         return $this->render('create', [
             'model' => $model,
+            'error'=>$error,
         ]);
     }
 
@@ -91,11 +110,8 @@ class AnswerController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        if ($model->load(Yii::$app->request->post())) {
-            $model->question_id=$id;
-            if($model->save()){
-                return $this->redirect(['view', 'id' => $model->id]);
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['index', 'id' => $model->id]);
         }
 
         return $this->render('update', [
@@ -112,9 +128,11 @@ class AnswerController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+        echo $_GET['id'];
+die;
+        $this->findModel($_GET['id_answer'])->delete();
+die;
+        return $this->redirect(['index','id'=>$_GET['id']]);
     }
 
     /**

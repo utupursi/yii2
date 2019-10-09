@@ -7,10 +7,18 @@ use yii\widgets\ActiveForm;
 /* @var $model app\models\Quiz */
 /* @var $form yii\widgets\ActiveForm */
 ?>
-
+<style>
+    #p{
+        color:red;
+        font-size:20px;
+    }
+</style>
 <div class="quiz-form">
 
     <?php $form = ActiveForm::begin(); ?>
+    <?php  if($error){
+        echo "<span id='p'>$error</span>";
+    } ?>
     <?= $form->field($model, 'subject')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'min_correct')->textInput() ?>

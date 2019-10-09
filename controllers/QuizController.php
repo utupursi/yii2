@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\Quiz;
 use app\models\QuizSearch;
+use app\models\QuestionSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -52,7 +53,15 @@ class QuizController extends Controller
      */
     public function actionView($id)
     {
-        return $this->redirect(['/question/index','id'=>$id]);
+        $searchModel = new QuestionSearch();
+        $dataProvider = $searchModel->search1(Yii::$app->request->queryParams, $id);
+
+
+        return $this->render('view', [
+            'model' => $this->findModel($id),
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
     }
 
     /**
@@ -64,12 +73,19 @@ class QuizController extends Controller
     {
         $model = new Quiz();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save() && $model->min_correct <= $model->max_question) {
+
             return $this->redirect(['view', 'id' => $model->id]);
+        }
+        if (Yii::$app->request->isPost) {
+            $error = 'Minimal correct answer can not be more than maximal number of questions';
+        } else {
+            $error = '';
         }
 
         return $this->render('create', [
             'model' => $model,
+            'error'=> $error,
         ]);
     }
 
@@ -85,7 +101,7 @@ class QuizController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['index', 'id' => $model->id]);
         }
 
         return $this->render('update', [

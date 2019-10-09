@@ -63,7 +63,7 @@ class Question extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'quiz_id' => 'Quiz ID',
+            'quiz_id' => 'Insert Subject',
             'name' => 'Name',
             'hint' => 'Hint',
             'max_ans' => 'Max Ans',
