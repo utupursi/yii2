@@ -2,8 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\Answer;
+use app\models\Question;
 use Yii;
 use app\models\Quiz;
+use yii\data\Pagination;
 use app\models\QuizSearch;
 use app\models\QuestionSearch;
 use yii\web\Controller;
@@ -45,6 +48,49 @@ class QuizController extends Controller
         ]);
     }
 
+    public function actionQuiz($id,$i)
+    {
+        $model=new Answer();
+
+        $model->load(Yii::$app->request->post());
+$model->is_correct=1;
+        $question = Question::find()->where(['quiz_id'=>$id])->asArray()->all();
+
+   $answer= Answer::find()->where(['question_id' => $question[$i+1]['id']])->asArray()->all();
+
+        $model = new Answer();
+
+        return $this->render('quiz_template', [
+            'question' => $question[$i+1],
+            'answer' => $answer,
+            'model' => $model,
+            'id'=>$id,
+            'count'=>$i+1,
+            'correct'=>$model->is_correct,
+        ]);
+    }
+    public function actionQuiz1($id,$i)
+    {
+        $question = Question::find()->where(['quiz_id'=>$id])->asArray()->all();
+
+        $answer= Answer::find()->where(['question_id' => $question[$i-1]['id']])->asArray()->all();
+
+        $model = new Answer();
+
+        return $this->render('quiz_template', [
+            'question' => $question[$i-1],
+            'answer' => $answer,
+            'model' => $model,
+            'id'=>$id,
+            'count'=>$i-1,
+            'correct'=>$model->is_correct,
+        ]);
+    }
+
+
+
+
+
     /**
      * Displays a single Quiz model.
      * @param integer $id
@@ -85,7 +131,7 @@ class QuizController extends Controller
 
         return $this->render('create', [
             'model' => $model,
-            'error'=> $error,
+            'error' => $error,
         ]);
     }
 

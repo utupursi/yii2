@@ -3,6 +3,9 @@
 namespace app\controllers;
 
 use app\models\Person2;
+use app\models\Question;
+use app\models\Quiz;
+use app\models\QuizSearch;
 use app\models\SignupForm;
 use Yii;
 use yii\filters\AccessControl;
@@ -36,15 +39,15 @@ class SiteController extends Controller
                 ],
             ],
             [
-            'class'=>AccessControl::className(),
-            'only'=>['blogs'],
-            'rules'=>[
-                [
-                    'actions'=>['blogs'],
-                    'allow'=>true,
-                    'roles'=>['@']
+                'class' => AccessControl::className(),
+                'only' => ['blogs'],
+                'rules' => [
+                    [
+                        'actions' => ['blogs'],
+                        'allow' => true,
+                        'roles' => ['@']
+                    ],
                 ],
-            ],
             ],
             'verbs' => [
                 'class' => VerbFilter::className(),
@@ -94,7 +97,13 @@ class SiteController extends Controller
 //    echo $user->foo();
 //      die;
 
-        return $this->render('index');
+
+        $quiz = Quiz::find()->asArray()->all();
+
+
+        return $this->render('index', [
+            'quiz' => $quiz,
+        ]);
 
     }
 
@@ -178,16 +187,20 @@ class SiteController extends Controller
             return $this->render('entry-confirm', ['model' => $model]);
         } else {
             // either the page is initially displayed or there is some validation error
-            return $this->render('entry',['model'=>$model]);
+            return $this->render('entry', ['model' => $model]);
         }
     }
-    public function actionForm(){
+
+    public function actionForm()
+    {
+        $model = new Person2();
+    {
         $model = new Person2();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             // данные в $model удачно провере
             // делаем что-то полезное с $model ..
-            if($model->save()) {
+            if ($model->save()) {
                 return $this->render('index', ['model' => $model]);
             }
         } else {
@@ -196,55 +209,70 @@ class SiteController extends Controller
         }
     }
 
-    public function actionSignup(){
-       $model=new SignupForm();
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            // данные в $model удачно провере
+            // делаем что-то полезное с $model ..
+            if ($model->save()) {
+                return $this->render('index', ['model' => $model]);
+            }
+        } else {
+            // либо страница отображается первый раз, либо есть ошибка в данных
+            return $this->render('form', ['model' => $model]);
+        }
+    }
+
+    public function actionSignup()
+    {
+        $model = new SignupForm();
         if ($model->load(Yii::$app->request->post()) && $model->signup()) {
 
-         return $this->redirect(Yii::$app->homeUrl);
-        }
-        else {
+            return $this->redirect(Yii::$app->homeUrl);
+        } else {
             return $this->render('signup', ['model' => $model]);
         }
     }
-/*    public function actionBlogs(){
-        $model=new Blogs();
-        if ($model->load(Yii::$app->request->post())){
-               if($model->save()){
-                   return $this->redirect(Yii::$app->homeUrl);
-               }
-        }
-        return $this->render('blogs',['model'=>$model]);
-    }*/
-    public function actionBlogs1(){
-        $model=new Blogs();
-        $blogs=$model::find()->all();
-        return $this->render('index',['blogs'=>$blogs]);
+
+    /*    public function actionBlogs(){
+            $model=new Blogs();
+            if ($model->load(Yii::$app->request->post())){
+                   if($model->save()){
+                       return $this->redirect(Yii::$app->homeUrl);
+                   }
+            }
+            return $this->render('blogs',['model'=>$model]);
+        }*/
+    public function actionBlogs1()
+    {
+        $model = new Blogs();
+        $blogs = $model::find()->all();
+        return $this->render('index', ['blogs' => $blogs]);
     }
-    public function actionDownload(){
-        $path=Yii::getAlias('@webroot') . '/Files';
-        $file=$path . '/9.php';
-        if(file_exists($file)){
+
+    public function actionDownload()
+    {
+        $path = Yii::getAlias('@webroot') . '/Files';
+        $file = $path . '/9.php';
+        if (file_exists($file)) {
             Yii::$app->response->xSendFile($file);
-        }
-        else{
+        } else {
             $this->render('index');
         }
     }
+
     public function actionUpload()
     {
         $model = new Blogs();
         if ($model->load(Yii::$app->request->post())) {
             $imageName = rand(1, 100000);
             $model->file = UploadedFile::getInstance($model, 'file');
-            $path=Yii::getAlias('@webroot') . '/Files/';
+            $path = Yii::getAlias('@webroot') . '/Files/';
             $model->file->saveAs($path . $imageName . '.' . $model->file->extension);
             $model->photo = $imageName . '.' . $model->file->extension;
-            if($model->save()) {
+            if ($model->save()) {
                 return $this->redirect(Yii::$app->homeUrl);
             }
-        }
-        else{
-            return $this->render('blogs',['model'=>$model]);
+        } else {
+            return $this->render('blogs', ['model' => $model]);
         }
 
     }

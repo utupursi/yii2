@@ -15,6 +15,9 @@ class QuestionSearch extends Question
     /**
      * {@inheritdoc}
      */
+    public function getNext(){
+
+    }
     public function rules()
     {
         return [

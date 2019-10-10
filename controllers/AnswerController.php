@@ -77,10 +77,11 @@ class AnswerController extends Controller
     {
         $model = new Answer();
         $model1 = new Question();
-        $count = Answer::find()->count();
 
-            if ($model->load(Yii::$app->request->post())) {
-                $question = Question::findOne($model->question_id);
+
+        if ($model->load(Yii::$app->request->post())) {
+            $count = Answer::find()->where(['question_id' => $model->question_id])->count();
+            $question = Question::findOne($model->question_id);
 
             if (($question->max_ans) > $count) {
                 if ($model->save()) {
@@ -96,7 +97,7 @@ class AnswerController extends Controller
 
         return $this->render('create', [
             'model' => $model,
-            'error'=>$error,
+            'error' => $error,
         ]);
     }
 
@@ -128,11 +129,9 @@ class AnswerController extends Controller
      */
     public function actionDelete($id)
     {
-        echo $_GET['id'];
-die;
-        $this->findModel($_GET['id_answer'])->delete();
-die;
-        return $this->redirect(['index','id'=>$_GET['id']]);
+        $this->findModel($id)->delete();
+
+        return $this->redirect(['index']);
     }
 
     /**
