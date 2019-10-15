@@ -56,16 +56,15 @@ class QuizController extends Controller
         ]);
         $model = new Answer();
 if(Yii::$app->request->post()) {
-  $g=Yii::$app->request->post();
-  var_dump($g);
+  $responses=Yii::$app->request->post();
 
-   for($i=0;$i<count($g);$i++){
 
-       if(strpos($h,'selected')!==false) {
-           echo $h;
-       }
+   foreach($responses as $response) {
+echo $response;
+
    }
    exit;
+
 }
         $question = $query->where(['quiz_id' => $id])->offset($pagination->offset)->limit($pagination->limit)->all();
 
