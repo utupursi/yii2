@@ -1,25 +1,30 @@
 <?php
+
 use yii\helpers\Html;
 
 use yii\widgets\ActiveForm;
 use yii\widgets\LinkPager;
 use yii\helpers\ArrayHelper;
+use yii\db\ActiveQuery;
+USE yii\db\ActiveRecord;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\QuizSearch */
 /* @var $form yii\widgets\ActiveForm */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $model app\controllers\QuizController */
-/* @var $pagination yii\data\Pagination*/
+/* @var $pagination yii\data\Pagination */
 ?>
 
 <style>
+
     #qid {
         padding: 10px 15px;
         -moz-border-radius: 50px;
         -webkit-border-radius: 50px;
         border-radius: 20px;
     }
+
     label.btn {
         padding: 18px 60px;
         white-space: normal;
@@ -32,11 +37,12 @@ use yii\helpers\ArrayHelper;
     }
 
     label.btn:hover {
-        text-shadow: 0 3px 2px rgba(0,0,0,0.4);
+        text-shadow: 0 3px 2px rgba(0, 0, 0, 0.4);
         -webkit-transform: scale(1.1);
         -moz-transform: scale(1.1);
         -o-transform: scale(1.1)
     }
+
     label.btn-block {
         text-align: left;
         position: relative
@@ -48,13 +54,14 @@ use yii\helpers\ArrayHelper;
         top: 0;
         display: inline-block;
         padding: 0 10px;
-        background: rgba(0,0,0,.15);
+        background: rgba(0, 0, 0, .15);
         height: 100%
     }
 
     label .glyphicon {
         top: 34%
     }
+
     .element-animation1 {
         animation: animationFrames ease .8s;
         animation-iteration-count: 1;
@@ -66,6 +73,7 @@ use yii\helpers\ArrayHelper;
         -ms-animation-iteration-count: 1;
         -ms-transform-origin: 50% 50%
     }
+
     .element-animation2 {
         animation: animationFrames ease 1s;
         animation-iteration-count: 1;
@@ -77,6 +85,7 @@ use yii\helpers\ArrayHelper;
         -ms-animation-iteration-count: 1;
         -ms-transform-origin: 50% 50%
     }
+
     .element-animation3 {
         animation: animationFrames ease 1.2s;
         animation-iteration-count: 1;
@@ -88,6 +97,7 @@ use yii\helpers\ArrayHelper;
         -ms-animation-iteration-count: 1;
         -ms-transform-origin: 50% 50%
     }
+
     .element-animation4 {
         animation: animationFrames ease 1.4s;
         animation-iteration-count: 1;
@@ -99,64 +109,65 @@ use yii\helpers\ArrayHelper;
         -ms-animation-iteration-count: 1;
         -ms-transform-origin: 50% 50%
     }
+
     @keyframes animationFrames {
         0% {
             opacity: 0;
-            transform: translate(-1500px,0px)
+            transform: translate(-1500px, 0px)
         }
 
         60% {
             opacity: 1;
-            transform: translate(30px,0px)
+            transform: translate(30px, 0px)
         }
 
         80% {
-            transform: translate(-10px,0px)
+            transform: translate(-10px, 0px)
         }
 
         100% {
             opacity: 1;
-            transform: translate(0px,0px)
+            transform: translate(0px, 0px)
         }
     }
 
     @-webkit-keyframes animationFrames {
         0% {
             opacity: 0;
-            -webkit-transform: translate(-1500px,0px)
+            -webkit-transform: translate(-1500px, 0px)
         }
         60% {
             opacity: 1;
-            -webkit-transform: translate(30px,0px)
+            -webkit-transform: translate(30px, 0px)
         }
 
         80% {
-            -webkit-transform: translate(-10px,0px)
+            -webkit-transform: translate(-10px, 0px)
         }
 
         100% {
             opacity: 1;
-            -webkit-transform: translate(0px,0px)
+            -webkit-transform: translate(0px, 0px)
         }
     }
 
     @-ms-keyframes animationFrames {
         0% {
             opacity: 0;
-            -ms-transform: translate(-1500px,0px)
+            -ms-transform: translate(-1500px, 0px)
         }
 
         60% {
             opacity: 1;
-            -ms-transform: translate(30px,0px)
+            -ms-transform: translate(30px, 0px)
         }
         80% {
-            -ms-transform: translate(-10px,0px)
+            -ms-transform: translate(-10px, 0px)
         }
 
         100% {
             opacity: 1;
-            -ms-transform: translate(0px,0px)
+            -ms-transform: translate(0px, 0px)
         }
     }
 
@@ -168,12 +179,14 @@ use yii\helpers\ArrayHelper;
     .modal-body {
         min-height: 205px
     }
+
     #loadbar {
         position: absolute;
         width: 62px;
         height: 77px;
         top: 2em
     }
+
     .blockG {
         position: absolute;
         background-color: #FFF;
@@ -210,6 +223,7 @@ use yii\helpers\ArrayHelper;
         animation-iteration-count: infinite;
         animation-direction: linear
     }
+
     #rotateG_01 {
         left: 0;
         top: 28px;
@@ -224,6 +238,7 @@ use yii\helpers\ArrayHelper;
         animation-delay: .33s;
         transform: rotate(-90deg)
     }
+
     #rotateG_02 {
         left: 8px;
         top: 10px;
@@ -238,6 +253,7 @@ use yii\helpers\ArrayHelper;
         animation-delay: .44000000000000006s;
         transform: rotate(-45deg)
     }
+
     #rotateG_03 {
         left: 26px;
         top: 3px;
@@ -252,6 +268,7 @@ use yii\helpers\ArrayHelper;
         animation-delay: .55s;
         transform: rotate(0deg)
     }
+
     #rotateG_04 {
         right: 8px;
         top: 10px;
@@ -266,6 +283,7 @@ use yii\helpers\ArrayHelper;
         animation-delay: .66s;
         transform: rotate(45deg)
     }
+
     #rotateG_05 {
         right: 0;
         top: 28px;
@@ -280,6 +298,7 @@ use yii\helpers\ArrayHelper;
         animation-delay: .7700000000000001s;
         transform: rotate(90deg)
     }
+
     #rotateG_06 {
         right: 8px;
         bottom: 7px;
@@ -294,6 +313,7 @@ use yii\helpers\ArrayHelper;
         animation-delay: .8800000000000001s;
         transform: rotate(135deg)
     }
+
     #rotateG_07 {
         bottom: 0;
         left: 26px;
@@ -308,6 +328,7 @@ use yii\helpers\ArrayHelper;
         animation-delay: .99s;
         transform: rotate(180deg)
     }
+
     #rotateG_08 {
         left: 8px;
         bottom: 7px;
@@ -322,6 +343,7 @@ use yii\helpers\ArrayHelper;
         animation-delay: 1.1s;
         transform: rotate(-135deg)
     }
+
     @-moz-keyframes fadeG {
         0% {
             background-color: #000
@@ -371,90 +393,133 @@ use yii\helpers\ArrayHelper;
         }
     }
 
-    #q{
+    #q {
         font-size: 25px;
 
     }
-    #k{
+
+    #k {
         text-align: right;
     }
-    #o{
+
+    #o {
         text-align: left;
+    }
+
+    #b {
+        margin-left: 790px;
+    }
+
+    #j {
+        font-size: 50px;
     }
 
 
 </style>
+<style>
+    .act {
 
-
+    }
+</style>
 
 <!--<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">-->
 <!--<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>-->
 <!--<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>-->
 <!--<Include the above in your HEAD tag >-->
 
-
-<div class="container-fluid bg-info">
+<div class="container-fluid">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
+        <ul>
+
+            <?php $form = ActiveForm::begin(); ?>
 
 
-                <h3><span class="label label-warning" id="q"><?php echo $question['name'] ?></span></h3>
+            <div class="modal-content">
+                <div class="modal-header">
 
-            </div>
-            <div class="modal-body">
-                <div class="col-xs-3 col-xs-offset-5">
-                    <div id="loadbar" style="display: none;">
-                        <div class="blockG" id="rotateG_01"></div>
-                        <div class="blockG" id="rotateG_02"></div>
-                        <div class="blockG" id="rotateG_03"></div>
-                        <div class="blockG" id="rotateG_04"></div>
-                        <div class="blockG" id="rotateG_05"></div>
-                        <div class="blockG" id="rotateG_06"></div>
-                        <div class="blockG" id="rotateG_07"></div>
-                        <div class="blockG" id="rotateG_08"></div>
-                    </div>
+                    <h3>
+                        <i>QUIZ NAME</i>
+                    </h3>
+
+                </div>
+                <div class="modal-body">
+
+                    <?php foreach ($questions as $question): ?>
+
+                        <div class="quiz" id="quiz" data-toggle="buttons">
+
+                            <h3>
+                                <?php echo Html::encode("{$question->name} ") ?>
+                            </h3>
+
+                            <?php $answers = \app\models\Answer::find()
+                                ->where(['question_id' => $question->id])
+                                ->indexBy('id')->all();
+
+                            foreach ($answers as $index => $answer):?>
+
+                                <div class='element-animation1  btn-lg btn-primary btn-block'>
+
+                                    <?php echo Html::radio("selectedAnswer_{$question->id}", false, [
+                                        'value' => $answer->id
+                                    ]) ?>
+
+                                    <label for="<?php echo "selectedAnswer_{$question->id}" ?>">
+                                        <?php echo $answer->name ?>
+                                    </label>
+
+                                </div>
+
+                            <?php endforeach; ?>
+
+                            <hr>
+
+                        </div>
+
+                    <?php endforeach; ?>
+
+                </div>
+                <div class="modal-footer text-muted">
+                    <span id="answer"></span>
+
                 </div>
 
-                <div class="quiz" id="quiz" data-toggle="buttons">
-                    <?php $form = ActiveForm::begin(); ?>
 
-
-                    <?php  for($i=0;$i<count($answer);$i++):?>
-
-                    <label class='element-animation1  btn-lg btn-primary btn-block'>
-                        <?= $form->field($model, 'name')->label('')->radioList( [0=>$answer[$i]['name']]);?></label>
-
-
-<?php endfor;?>
-                    <?php $form = ActiveForm::end(); ?>
+                <div style="padding: 0 15px 15px 0" class="pull-right">
+                    <?= Html::submitButton('Submit', ['class' => 'btn btn-success']) ?>
                 </div>
-            </div>
-            <div class="modal-footer text-muted">
-                <span id="answer"></span>
 
+                <div class="clearfix"></div>
             </div>
 
+            <?php $form = ActiveForm::end(); ?>
 
-        </div>
-        <?php echo ($correct)?>
+        </ul>
+
     </div>
-    <?php if($count!=0):?>
-    <div id="o"> <?= Html::a('Previous Question',  ['quiz/quiz1','id'=>$id,'i'=>$count]); ?></div>
-    <?php endif;?>
-    <div id="k"> <?= Html::a('Next Question',  ['quiz/quiz','id'=>$id,'i'=>$count]); ?></div>
 
-</div
-
-
-<script>
-
-</script>
-
-
-<div style="max-width: 600px; margin: 24px auto;">
 
 </div>
 
 
-<!--    <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">-->
+</divs
+
+
+<div style="max-width: 600px; margin: 24px auto;">
+</div>
+
+
+<link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+<script>
+    let ele = document.getElementsByTagName('input');
+
+    function set() {
+        for (i = 0; i < ele.length; i++) {
+            if (ele[i].checked) {
+                console.log(ele[i]);
+            }
+        }
+
+    }
+
+</script>

@@ -35,7 +35,7 @@ use yii\grid\GridView;
       <th scope="row"><?php echo $i?></th>
       <td><?php echo $quiz[$i-1]['subject']?></td>
 <td>
-    <?= Html::a('Start', ['quiz/quiz','id'=>$quiz[$i-1]['id'],'i'=>-1], ['class' => 'btn btn-success']) ?>
+    <?= Html::a('Start', ['quiz/quiz','id'=>$quiz[$i-1]['id']], ['class' => 'btn btn-success']) ?>
 
 </td>
     </tr>

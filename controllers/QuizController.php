@@ -48,46 +48,39 @@ class QuizController extends Controller
         ]);
     }
 
-    public function actionQuiz($id,$i)
+    public function actionQuiz($id)
     {
-        $model=new Answer();
-
-        $model->load(Yii::$app->request->post());
-$model->is_correct=1;
-        $question = Question::find()->where(['quiz_id'=>$id])->asArray()->all();
-
-   $answer= Answer::find()->where(['question_id' => $question[$i+1]['id']])->asArray()->all();
-
+        $query = Question::find();
+        $pagination = new Pagination([
+            'totalCount' => $query->where(['quiz_id' => $id])->count(),
+        ]);
         $model = new Answer();
+if(Yii::$app->request->post()) {
+  $g=Yii::$app->request->post();
+  var_dump($g);
+
+   for($i=0;$i<count($g);$i++){
+
+       if(strpos($h,'selected')!==false) {
+           echo $h;
+       }
+   }
+   exit;
+}
+        $question = $query->where(['quiz_id' => $id])->offset($pagination->offset)->limit($pagination->limit)->all();
+
+
+
+        $answers = Answer::find()->indexBy('id')->all();
 
         return $this->render('quiz_template', [
-            'question' => $question[$i+1],
-            'answer' => $answer,
+            'questions' => $question,
             'model' => $model,
-            'id'=>$id,
-            'count'=>$i+1,
-            'correct'=>$model->is_correct,
+            'pagination' => $pagination,
+            'answers' => $answers,
         ]);
-    }
-    public function actionQuiz1($id,$i)
-    {
-        $question = Question::find()->where(['quiz_id'=>$id])->asArray()->all();
 
-        $answer= Answer::find()->where(['question_id' => $question[$i-1]['id']])->asArray()->all();
-
-        $model = new Answer();
-
-        return $this->render('quiz_template', [
-            'question' => $question[$i-1],
-            'answer' => $answer,
-            'model' => $model,
-            'id'=>$id,
-            'count'=>$i-1,
-            'correct'=>$model->is_correct,
-        ]);
-    }
-
-
+}
 
 
 
