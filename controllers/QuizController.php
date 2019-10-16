@@ -55,20 +55,52 @@ class QuizController extends Controller
             'totalCount' => $query->where(['quiz_id' => $id])->count(),
         ]);
         $model = new Answer();
-if(Yii::$app->request->post()) {
-  $responses=Yii::$app->request->post();
+        if (Yii::$app->request->post()) {
+            $responses = Yii::$app->request->post();
 
+            $masivi = [];
+            $i = 0;
+            $count = 0;
+            $question_count = 0;
+            foreach ($responses as $index => $response) {
+                $question_count++;
+                if (strpos($index, 'selectedAnswer') !== false) {
+                    $masivi[$i] = $response;
+                    $i++;
+                }
 
-   foreach($responses as $response) {
-echo $response;
+            }
+            foreach ($masivi as $masiv) {
+                $answer = Answer::findOne($masiv);
+                if ($answer->is_correct == 1) {
+                    $count += 1;
+                }
+            }
 
-   }
-   exit;
+            $quiz = Quiz::findOne($id);
 
-}
-        $question = $query->where(['quiz_id' => $id])->offset($pagination->offset)->limit($pagination->limit)->all();
+            if ($count < $quiz->min_correct) {
+                $error = 'You have  not  passed quiz';
+                $success = '';
+            } else {
+                $error = '';
+                $success = 'You have successfully passed quiz';
+            }
 
+            $question_count_fromTable = $query->where(['quiz_id' => $id])->count();
 
+            if ($question_count - 1 == $question_count_fromTable) {
+                return $this->render('quiz_finish', [
+                    'count' => $count,
+                    'error' => $error,
+                    'success' => $success,
+                    'question_count' => $question_count - 1,
+                    'id' => $id
+                ]);
+            }
+        }
+
+        $question = $query->where(['quiz_id' => $id])->all();
 
         $answers = Answer::find()->indexBy('id')->all();
 
@@ -79,8 +111,7 @@ echo $response;
             'answers' => $answers,
         ]);
 
-}
-
+    }
 
 
     /**
