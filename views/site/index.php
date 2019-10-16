@@ -27,9 +27,11 @@ use yii\grid\GridView;
     </tr>
   </thead>
 
-  <tbody>
-  <?php
-  for($i=1;$i<=count($quiz);$i++):?>
+        <?php
+        for($i=1;$i<=count($quiz);$i++):?>
+
+            <tbody>
+
 
   <tr>
       <th scope="row"><?php echo $i?></th>
@@ -39,7 +41,7 @@ use yii\grid\GridView;
 
 </td>
     </tr>
-  <?php endfor;?>
   </tbody>
+        <?php endfor;?>
 </table>
 

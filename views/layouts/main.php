@@ -45,7 +45,7 @@ AppAsset::register($this);
             ['label' => 'Home', 'url' => ['/site/index']],
             ['label' => 'About', 'url' => ['/site/about']],
             ['label' => 'Contact', 'url' => ['/site/contact']],
-            ['label' => 'Person', 'url' => [Url::toRoute(['person/person', 'id' => 100])]],
+            ['label' => 'Result', 'url' => ['quiz/result']],
             ['label'=>'Quiz','url'=>['/quiz/index']],
             ['label'=>'Question','url'=>['/question/index']],
             ['label'=>'Answer','url'=>['/answer/index']],

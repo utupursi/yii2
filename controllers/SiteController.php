@@ -194,20 +194,20 @@ class SiteController extends Controller
     public function actionForm()
     {
         $model = new Person2();
-    {
-        $model = new Person2();
+        {
+            $model = new Person2();
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            // данные в $model удачно провере
-            // делаем что-то полезное с $model ..
-            if ($model->save()) {
-                return $this->render('index', ['model' => $model]);
+            if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+                // данные в $model удачно провере
+                // делаем что-то полезное с $model ..
+                if ($model->save()) {
+                    return $this->render('index', ['model' => $model]);
+                }
+            } else {
+                // либо страница отображается первый раз, либо есть ошибка в данных
+                return $this->render('form', ['model' => $model]);
             }
-        } else {
-            // либо страница отображается первый раз, либо есть ошибка в данных
-            return $this->render('form', ['model' => $model]);
         }
-    }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             // данные в $model удачно провере

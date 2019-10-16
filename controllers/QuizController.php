@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\Answer;
 use app\models\Question;
+use app\models\Result;
 use Yii;
 use app\models\Quiz;
 use yii\data\Pagination;
@@ -12,6 +13,7 @@ use app\models\QuestionSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\db\ActiveRecord;
 
 /**
  * QuizController implements the CRUD actions for Quiz model.
@@ -55,29 +57,28 @@ class QuizController extends Controller
             'totalCount' => $query->where(['quiz_id' => $id])->count(),
         ]);
         $model = new Answer();
+        $model_result = new  Result();
+
         if (Yii::$app->request->post()) {
+
             $responses = Yii::$app->request->post();
 
-            $masivi = [];
-            $i = 0;
             $count = 0;
             $question_count = 0;
+
             foreach ($responses as $index => $response) {
                 $question_count++;
                 if (strpos($index, 'selectedAnswer') !== false) {
-                    $masivi[$i] = $response;
-                    $i++;
+                    $answer = Answer::findOne($response);
+                    if ($answer->is_correct == 1) {
+                        $count += 1;
+                    }
                 }
 
             }
-            foreach ($masivi as $masiv) {
-                $answer = Answer::findOne($masiv);
-                if ($answer->is_correct == 1) {
-                    $count += 1;
-                }
-            }
-
             $quiz = Quiz::findOne($id);
+
+            $model_result->insert_result($id, $quiz->min_correct, $count);
 
             if ($count < $quiz->min_correct) {
                 $error = 'You have  not  passed quiz';
@@ -111,6 +112,17 @@ class QuizController extends Controller
             'answers' => $answers,
         ]);
 
+    }
+
+
+    public function actionResult()
+    {
+        $model = new Result();
+        $results = $model->find()->all();
+        return $this->render('result_reporting', [
+            'results' => $results,
+
+        ]);
     }
 
 

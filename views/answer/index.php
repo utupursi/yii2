@@ -30,7 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'question_id',
             'is_correct',
             'name',
-            'created_at',
+            'created_at:datetime',
             //'updated_at',
 
             ['class' => 'yii\grid\ActionColumn'],
