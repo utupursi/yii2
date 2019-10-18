@@ -29,8 +29,8 @@ class Answer extends \yii\db\ActiveRecord
             [
                 'class' => TimestampBehavior::className(),
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at','updated_at'],
+                    ActiveRecord::EVENT_AFTER_UPDATE => ['updated_at'],
                 ],
                 // if you're using datetime instead of UNIX timestamp:
                 // 'value' => new Expression('NOW()'),

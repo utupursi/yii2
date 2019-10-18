@@ -99,8 +99,6 @@ class SiteController extends Controller
 
 
         $quiz = Quiz::find()->asArray()->all();
-
-
         return $this->render('index', [
             'quiz' => $quiz,
         ]);

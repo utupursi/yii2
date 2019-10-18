@@ -14,6 +14,7 @@ USE yii\db\ActiveRecord;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $model app\controllers\QuizController */
 /* @var $pagination yii\data\Pagination */
+/* @var $quiz yii\gii\controllers\ */
 ?>
 
 <!--<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">-->
@@ -32,7 +33,7 @@ USE yii\db\ActiveRecord;
                 <div class="modal-header">
 
                     <h3>
-                        <i>QUIZ NAME</i>
+                        <i><?php echo $quiz->subject?></i>
                     </h3>
 
                 </div>

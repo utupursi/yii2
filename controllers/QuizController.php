@@ -53,11 +53,10 @@ class QuizController extends Controller
     public function actionQuiz($id)
     {
         $query = Question::find();
-        $pagination = new Pagination([
-            'totalCount' => $query->where(['quiz_id' => $id])->count(),
-        ]);
-        $model = new Answer();
+
         $model_result = new  Result();
+
+        $quiz = Quiz::findOne($id);
 
         if (Yii::$app->request->post()) {
 
@@ -69,16 +68,17 @@ class QuizController extends Controller
             foreach ($responses as $index => $response) {
                 $question_count++;
                 if (strpos($index, 'selectedAnswer') !== false) {
+
                     $answer = Answer::findOne($response);
+
                     if ($answer->is_correct == 1) {
                         $count += 1;
                     }
+
                 }
 
             }
-            $quiz = Quiz::findOne($id);
 
-            $model_result->insert_result($id, $quiz->min_correct, $count);
 
             if ($count < $quiz->min_correct) {
                 $error = 'You have  not  passed quiz';
@@ -90,13 +90,15 @@ class QuizController extends Controller
 
             $question_count_fromTable = $query->where(['quiz_id' => $id])->count();
 
+            $model_result->insert_result($id, $quiz->min_correct, $count, $question_count_fromTable);
+
             if ($question_count - 1 == $question_count_fromTable) {
                 return $this->render('quiz_finish', [
                     'count' => $count,
                     'error' => $error,
                     'success' => $success,
                     'question_count' => $question_count - 1,
-                    'id' => $id
+                    'id' => $id,
                 ]);
             }
         }
@@ -107,9 +109,8 @@ class QuizController extends Controller
 
         return $this->render('quiz_template', [
             'questions' => $question,
-            'model' => $model,
-            'pagination' => $pagination,
             'answers' => $answers,
+            'quiz' => $quiz,
         ]);
 
     }
@@ -117,8 +118,8 @@ class QuizController extends Controller
 
     public function actionResult()
     {
-        $model = new Result();
-        $results = $model->find()->all();
+        $results = Result::find()->all();
+
         return $this->render('result_reporting', [
             'results' => $results,
 
