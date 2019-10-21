@@ -1,36 +1,73 @@
+<?php
 
-<table class="table">
-    <thead class="thead-dark">
-    <tr>
+use yii\helpers\Html;
+use yii\grid\GridView;
 
-        <th scope="col">#</th>
-        <th scope="col">Quiz_name</th>
-        <th scope="col">Min_Correct</th>
-        <th scope="col">Number of correct answers</th>
-        <th scope="col">Percentage</th>
-        <th scope="col">Pass</th>
-        <th scope="col">Quiz pass date</th>
-    </tr>
-    </thead>
-    <?php $g = 1;
-    foreach ($results as $result):?>
-        <tbody>
-        <tr>
-            <th scope="row"><?php echo $g;$g++?></th>
-          <td><?php echo $result->quiz->subject?></td>
-            <td><?php echo $result->min_correct ?></td>
-            <td><?php echo $result->correct_answer_count ?></td>
-            <td><?php echo ($result->correct_answer_count*100)/($result->number_of_questions)?>%</td>
-            <td><?php if($result->correct_answer_count<$result->min_correct):?>
-                    <p style="color:red">Failed</p>
-                <?php endif;?>
-                <?php if($result->correct_answer_count>=$result->min_correct):?>
-                    <p style="color:green">Passed</p>
-                <?php endif;?>
-            </td>
-            <td><?php echo  Yii::$app->formatter->asDatetime($result->quiz_pass_date) ?></td>
-        </tr>
-        </tbody>
-    <?php endforeach; ?>
-</table>
+?>
+
+<?= GridView::widget([
+    'dataProvider' => $dataProvider,
+
+    'columns' => [
+        ['class' => 'yii\grid\SerialColumn'],
+
+        ['label' => 'Quiz Name',
+            'value' => function ($model) {
+                if ($model->quiz_id != '') {
+                    return $model->quiz->subject;
+                } else {
+                    return $model->quiz_name;
+                }
+
+            }
+        ],
+        'min_correct',
+        ['label' => 'Number of correct answers',
+            'value' => 'correct_answer_count'
+        ],
+        ['label' => 'Percent',
+            'value' => function ($model) {
+                return round(($model->correct_answer_count * 100) / ($model->number_of_questions)). '%';
+            }
+        ],
+
+        ['label' => 'pass',
+            'value' => function ($model) {
+                if ($model->correct_answer_count < $model->min_correct) {
+
+                    return 'Failed';
+                } else {
+                    ['contentOptions' => ['style' => 'color:red']];
+                    return 'Passed';
+                }
+            },
+            'contentOptions' => function ($model) {
+                return ['style' => 'color:' . ($model->correct_answer_count < $model->min_correct ? 'red' : 'green')];
+            }
+
+
+        ],
+        [
+            'label' => 'Date of pass quiz',
+            'value' => function ($model) {
+                return Yii::$app->formatter->asDatetime($model->quiz_pass_date);
+            }
+        ],
+        ['label' => 'Created By',
+            'value' => function ($model) {
+                return $model->createdBy->username;
+            }
+
+        ],
+        ['label' => 'Updated_By',
+            'value' => function ($model) {
+                return $model->createdBy->username;
+            }
+
+        ],
+
+    ],
+
+
+]); ?>
 

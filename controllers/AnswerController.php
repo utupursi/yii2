@@ -6,6 +6,7 @@ use app\models\Question;
 use Yii;
 use app\models\Answer;
 use app\models\AnswerSearch;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -25,6 +26,17 @@ class AnswerController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            [
+                'class' => AccessControl::className(),
+                'only' => ['index', 'update', 'view'],
+                'rules' => [
+                    [
+                        'actions' => ['index', 'update', 'view'],
+                        'allow' => true,
+                        'roles' => ['@']
+                    ],
                 ],
             ],
         ];
@@ -111,8 +123,10 @@ class AnswerController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['index', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                return $this->redirect(['index', 'id' => $model->id]);
+            }
         }
 
         return $this->render('update', [

@@ -4,15 +4,16 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use app\models\Quiz;
 use yii\helpers\ArrayHelper;
+
 /* @var $this yii\web\View */
 /* @var $model app\models\Question */
 
 /* @var $form yii\widgets\ActiveForm */
 ?>
 <style>
-    #p{
-        color:red;
-        font-size:20px;
+    #p {
+        color: red;
+        font-size: 20px;
     }
 </style>
 
@@ -20,13 +21,13 @@ use yii\helpers\ArrayHelper;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?php  if($error){
+    <?php if ($error) {
         echo "<span id='p'>$error</span>";
     } ?>
 
-    <?= $form->field($model,'quiz_id')
+    <?= $form->field($model, 'quiz_id')
         ->dropDownList(
-            ArrayHelper::map(Quiz::find()->all(),'id','subject')
+            ArrayHelper::map(Quiz::find()->all(), 'id', 'subject')
         )
     ?>
 
@@ -35,7 +36,6 @@ use yii\helpers\ArrayHelper;
     <?= $form->field($model, 'hint')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'max_ans')->textInput() ?>
-
 
 
     <div class="form-group">

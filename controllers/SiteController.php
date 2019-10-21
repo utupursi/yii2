@@ -81,27 +81,9 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-//       $user=new User1;
-////        $user->on(User1::USER_REGISTERED, function($event){
-////           echo $event->name;
-////        });
-////
-////        $user->on(User1::USER_REGISTERED,[$user,'method']);
-////
-////        $user->on(User1::USER_REGISTERED,function($event) {
-////          echo 't';
-////        });
-////            $user->trigger(User1::USER_REGISTERED);
-//    echo $user->property1;
-//    echo $user->property2;
-//    echo $user->foo();
-//      die;
 
+        return $this->render('index');
 
-        $quiz = Quiz::find()->asArray()->all();
-        return $this->render('index', [
-            'quiz' => $quiz,
-        ]);
 
     }
 
@@ -231,31 +213,18 @@ class SiteController extends Controller
         }
     }
 
-    /*    public function actionBlogs(){
-            $model=new Blogs();
-            if ($model->load(Yii::$app->request->post())){
-                   if($model->save()){
-                       return $this->redirect(Yii::$app->homeUrl);
-                   }
-            }
-            return $this->render('blogs',['model'=>$model]);
-        }*/
-    public function actionBlogs1()
-    {
-        $model = new Blogs();
-        $blogs = $model::find()->all();
-        return $this->render('index', ['blogs' => $blogs]);
-    }
 
-    public function actionDownload()
+    public function actionStart()
     {
-        $path = Yii::getAlias('@webroot') . '/Files';
-        $file = $path . '/9.php';
-        if (file_exists($file)) {
-            Yii::$app->response->xSendFile($file);
-        } else {
-            $this->render('index');
-        }
+
+        $searchModel = new QuizSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+
+        return $this->render('start_quiz', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
     }
 
     public function actionUpload()

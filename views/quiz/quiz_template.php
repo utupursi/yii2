@@ -33,7 +33,7 @@ USE yii\db\ActiveRecord;
                 <div class="modal-header">
 
                     <h3>
-                        <i><?php echo $quiz->subject?></i>
+                        <i><?php echo $quiz->subject ?></i>
                     </h3>
 
                 </div>

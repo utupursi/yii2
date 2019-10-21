@@ -8,6 +8,7 @@ use Yii;
 use app\models\Quiz;
 use app\models\Question;
 use app\models\QuestionSearch;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -27,6 +28,17 @@ class QuestionController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            [
+                'class' => AccessControl::className(),
+                'only' => ['index', 'update', 'view'],
+                'rules' => [
+                    [
+                        'actions' => ['index', 'update', 'view'],
+                        'allow' => true,
+                        'roles' => ['@']
+                    ],
                 ],
             ],
         ];
@@ -84,7 +96,7 @@ class QuestionController extends Controller
             $count = Question::find()->where(['quiz_id' => $model->quiz_id])->count();
             $question = Quiz::findOne($model->quiz_id);
 
-            if (($question->max_question) > $count) {
+            if (($question->max_question) >= $count) {
                 if ($model->save()) {
                     return $this->redirect(['index', 'id' => $model->quiz_id]);
                 }
@@ -112,7 +124,8 @@ class QuestionController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+            $model->save();
             return $this->redirect(['index', 'id' => $model->id]);
         }
 

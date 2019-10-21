@@ -5,11 +5,13 @@ namespace app\controllers;
 use app\models\Answer;
 use app\models\Question;
 use app\models\Result;
+use app\models\ResultSearch;
 use Yii;
 use app\models\Quiz;
 use yii\data\Pagination;
 use app\models\QuizSearch;
 use app\models\QuestionSearch;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -30,6 +32,17 @@ class QuizController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            [
+                'class' => AccessControl::className(),
+                'only' => ['index', 'update', 'view'],
+                'rules' => [
+                    [
+                        'actions' => ['index', 'update', 'view'],
+                        'allow' => true,
+                        'roles' => ['@']
+                    ],
                 ],
             ],
         ];
@@ -118,11 +131,12 @@ class QuizController extends Controller
 
     public function actionResult()
     {
-        $results = Result::find()->all();
+        $searchModel = new ResultSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('result_reporting', [
-            'results' => $results,
-
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
@@ -182,7 +196,8 @@ class QuizController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+            $model->save();
             return $this->redirect(['index', 'id' => $model->id]);
         }
 
@@ -200,8 +215,14 @@ class QuizController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $quiz = new Quiz();
 
+        $search = $quiz->findOne($id);
+        $model = new Result();
+
+        $model->updateAll(['quiz_name' => $search->subject], ['quiz_id' => $id]);
+
+        $this->findModel($id)->delete();
         return $this->redirect(['index']);
     }
 

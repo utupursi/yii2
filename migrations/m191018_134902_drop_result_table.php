@@ -3,14 +3,22 @@
 use yii\db\Migration;
 
 /**
- * Handles the creation of table `{{%result}}`.
+ * Handles the dropping of table `{{%result}}`.
  */
-class m191018_111857_create_result_table extends Migration
+class m191018_134902_drop_result_table extends Migration
 {
     /**
      * {@inheritdoc}
      */
     public function safeUp()
+    {
+        $this->dropTable('{{%result}}');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function safeDown()
     {
         $this->createTable('{{%result}}', [
             'id' => $this->primaryKey(),
@@ -25,17 +33,7 @@ class m191018_111857_create_result_table extends Migration
             'result',
             'quiz_id',
             'quiz',
-            'id',
-            'CASCADE'
+            'id'
         );
-    }
-
-
-    /**
-     * {@inheritdoc}
-     */
-    public function safeDown()
-    {
-        $this->dropTable('{{%result}}');
     }
 }

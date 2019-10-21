@@ -60,7 +60,7 @@ class AnswerSearch extends Answer
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'question_id' =>$this->question_id,
+            'question_id' => $this->question_id,
             'is_correct' => $this->is_correct,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
@@ -70,7 +70,8 @@ class AnswerSearch extends Answer
 
         return $dataProvider;
     }
-    public function search1($params,$id)
+
+    public function search1($params, $id)
     {
         $query = Answer::find();
 
@@ -91,7 +92,7 @@ class AnswerSearch extends Answer
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'question_id' =>$id,
+            'question_id' => $id,
             'is_correct' => $this->is_correct,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

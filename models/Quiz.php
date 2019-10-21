@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\validators\UniqueValidator;
@@ -14,31 +15,37 @@ use yii\validators\UniqueValidator;
  * @property int $min_correct
  * @property int $created_at
  * @property int $updated_at
+ * @property int $created_by
+ * @property int $updated_by
  * @property int $max_question
  * @property string $subject
- *
  * @property Question[] $questions
  */
 class Quiz extends \yii\db\ActiveRecord
 {
+
+
+    public static function tableName()
+    {
+        return 'quiz';
+    }
+
     public function behaviors()
     {
         return [
             [
                 'class' => TimestampBehavior::className(),
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at','updated_at'],
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
                     ActiveRecord::EVENT_AFTER_UPDATE => ['updated_at'],
                 ],
                 // if you're using datetime instead of UNIX timestamp:
                 // 'value' => new Expression('NOW()'),
             ],
-        ];
-    }
 
-    public static function tableName()
-    {
-        return 'quiz';
+            'class' => BlameableBehavior::class,
+
+        ];
     }
 
     /**
@@ -47,9 +54,9 @@ class Quiz extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['min_correct', 'created_at', 'updated_at', 'max_question'], 'integer'],
+            [['min_correct', 'created_at', 'updated_at', 'max_question', 'created_by', 'updated_by'], 'integer'],
             [['subject'], 'string', 'max' => 255],
-            [['subject'],'unique'],
+            [['subject'], 'unique'],
         ];
     }
 
@@ -65,6 +72,8 @@ class Quiz extends \yii\db\ActiveRecord
             'updated_at' => 'Updated At',
             'max_question' => 'Max Question',
             'subject' => 'Subject',
+            'created_by' => 'Created by',
+            'updated_by' => 'Updated by',
         ];
     }
 

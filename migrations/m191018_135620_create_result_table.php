@@ -5,7 +5,7 @@ use yii\db\Migration;
 /**
  * Handles the creation of table `{{%result}}`.
  */
-class m191018_111857_create_result_table extends Migration
+class m191018_135620_create_result_table extends Migration
 {
     /**
      * {@inheritdoc}
@@ -29,7 +29,6 @@ class m191018_111857_create_result_table extends Migration
             'CASCADE'
         );
     }
-
 
     /**
      * {@inheritdoc}

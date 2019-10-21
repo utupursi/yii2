@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
@@ -11,11 +12,15 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property int $quiz_id
+ * @property string $quiz_name
  * @property int $min_correct
  * @property int $correct_answer_count
  * @property int $number_of_questions
  * @property int $quiz_pass_date
+ * @property int $created_by
+ * @property int $updated_by
  *
+ * @property User $createdBy
  * @property Quiz $quiz
  */
 class Result extends \yii\db\ActiveRecord
@@ -28,10 +33,6 @@ class Result extends \yii\db\ActiveRecord
         return 'result';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-
     public function behaviors()
     {
         return [
@@ -39,16 +40,24 @@ class Result extends \yii\db\ActiveRecord
                 'class' => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['quiz_pass_date'],
+
                 ],
-                // if you're using datetime instead of UNIX timestamp:
-                // 'value' => new Expression('NOW()'),
+
+
             ],
+            'class' => BlameableBehavior::class,
         ];
     }
+
+    /**
+     * {@inheritdoc}
+     */
     public function rules()
     {
         return [
-            [['quiz_id', 'min_correct', 'correct_answer_count', 'number_of_questions', 'quiz_pass_date'], 'integer'],
+            [['quiz_id', 'min_correct', 'correct_answer_count', 'number_of_questions', 'quiz_pass_date', 'created_by', 'updated_by'], 'integer'],
+            [['quiz_name'], 'string', 'max' => 255],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
             [['quiz_id'], 'exist', 'skipOnError' => true, 'targetClass' => Quiz::className(), 'targetAttribute' => ['quiz_id' => 'id']],
         ];
     }
@@ -61,25 +70,36 @@ class Result extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'quiz_id' => 'Quiz ID',
+            'quiz_name' => 'Quiz Name',
             'min_correct' => 'Min Correct',
             'correct_answer_count' => 'Correct Answer Count',
             'number_of_questions' => 'Number Of Questions',
             'quiz_pass_date' => 'Quiz Pass Date',
+            'created_by' => 'Created By',
+            'updated_by' => 'Updated By',
         ];
     }
 
-    public function insert_result($id, $min_correct, $count,$question_count)
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function insert_result($id, $min_correct, $count, $question_count)
     {
         $result = new Result();
-        $result->quiz_id=$id;
+        $result->quiz_id = $id;
         $result->min_correct = $min_correct;
         $result->correct_answer_count = $count;
-        $result->number_of_questions=$question_count;
-
+        $result->number_of_questions = $question_count;
         if ($result->save()) {
             return true;
         }
     }
+
+    public function getCreatedBy()
+    {
+        return $this->hasOne(User::className(), ['id' => 'created_by']);
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */

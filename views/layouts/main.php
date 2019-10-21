@@ -1,6 +1,7 @@
 <?php
 
 /* @var $this \yii\web\View */
+
 /* @var $content string */
 
 use app\widgets\Alert;
@@ -43,15 +44,30 @@ AppAsset::register($this);
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
             ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
             ['label' => 'Result', 'url' => ['quiz/result']],
-            ['label'=>'Quiz','url'=>['/quiz/index']],
-            ['label'=>'Question','url'=>['/question/index']],
-            ['label'=>'Answer','url'=>['/answer/index']],
 
             Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/site/login']]
+            ['label' => 'Signup', 'url' => ['/site/signup']]
+            ) : "",
+
+            !Yii::$app->user->isGuest ? (
+            ['label' => 'Start Quiz', 'url' => ['/site/start']]
+            ) : "",
+            !Yii::$app->user->isGuest ? (
+            ['label' => 'Quiz', 'url' => ['/quiz/index']]
+            ) : "",
+
+
+            !Yii::$app->user->isGuest ? (
+            ['label' => 'Question', 'url' => ['/question/index']]
+            ) : "",
+
+            !Yii::$app->user->isGuest ? (
+            ['label' => 'Answer', 'url' => ['/answer/index']]
+            ) : "",
+
+            Yii::$app->user->isGuest ? (
+            ['label' => 'Login', 'url' => ['/site/login']]
 
             ) : (
                 '<li>'
@@ -63,13 +79,7 @@ AppAsset::register($this);
                 . Html::endForm()
                 . '</li>'
             ),
-            Yii::$app->user->isGuest ?(
-            ['label' => 'Signup', 'url' => ['/site/signup']]
-            ):"",
 
-            !Yii::$app->user->isGuest ?(
-        ['label' => 'Blog', 'url' => ['/site/upload']]
-        ):""
 
         ],
 

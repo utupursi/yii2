@@ -15,9 +15,11 @@ class QuestionSearch extends Question
     /**
      * {@inheritdoc}
      */
-    public function getNext(){
+    public function getNext()
+    {
 
     }
+
     public function rules()
     {
         return [
@@ -64,7 +66,7 @@ class QuestionSearch extends Question
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'quiz_id' =>$this->quiz_id,
+            'quiz_id' => $this->quiz_id,
             'max_ans' => $this->max_ans,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
@@ -75,7 +77,8 @@ class QuestionSearch extends Question
 
         return $dataProvider;
     }
-    public function search1($params,$id)
+
+    public function search1($params, $id)
     {
         $query = Question::find();
 
@@ -96,7 +99,7 @@ class QuestionSearch extends Question
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'quiz_id' =>$id,
+            'quiz_id' => $id,
             'max_ans' => $this->max_ans,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
