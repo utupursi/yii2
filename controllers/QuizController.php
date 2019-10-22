@@ -12,6 +12,7 @@ use yii\data\Pagination;
 use app\models\QuizSearch;
 use app\models\QuestionSearch;
 use yii\filters\AccessControl;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -65,70 +66,76 @@ class QuizController extends Controller
 
     public function actionQuiz($id)
     {
-        $query = Question::find();
-
-        $model_result = new  Result();
+        $modelResult = new Result();
 
         $quiz = Quiz::findOne($id);
 
-        if (Yii::$app->request->post()) {
+        $questions = Question::find()
+            ->where(['quiz_id' => $id])
+            ->with(['answers'])
+            ->all();
 
-            $responses = Yii::$app->request->post();
-
+        if (Yii::$app->request->isPost) {
+            $post = Yii::$app->request->post();
             $count = 0;
-            $question_count = 0;
+            $questionCount = 0;
+            $answerIds = [];
 
-            foreach ($responses as $index => $response) {
-                $question_count++;
+            foreach ($post as $index => $answerId) {
                 if (strpos($index, 'selectedAnswer') !== false) {
-
-                    $answer = Answer::findOne($response);
-
-                    if ($answer->is_correct == 1) {
-                        $count += 1;
-                    }
-
+                    $questionCount++;
+                    $answerIds[] = $answerId;
                 }
-
             }
 
+            $answers = Answer::find()
+                ->andWhere(['id' => $answerIds])
+                ->all();
 
-            if ($count < $quiz->min_correct) {
-                $error = 'You have  not  passed quiz';
-                $success = '';
+            foreach ($answers as $answer) {
+                if ($answer->is_correct) {
+                    $count++;
+                }
+            }
+
+            $error = $count < $quiz->min_correct ? 'You have  not  passed quiz' : '';
+            $success = $count < $quiz->min_correct ? '' : 'You have successfully passed quiz';
+
+            $questionCountFromDb = Question::find()
+                ->where(['quiz_id' => $id])
+                ->count();
+
+
+            if ($questionCount != $questionCountFromDb) {
+                $errorOfChoose = 'You should answer to all questions';
+                return $this->render('quiz_template', [
+                    'questions' => $questions,
+                    'quiz' => $quiz,
+                    'errorOfChoose' => $errorOfChoose,
+                ]);
+
+            }
+            if (!$modelResult->insertResult($id, $quiz->min_correct, $count, $questionCountFromDb)) {
+                $errorOfInsert = 'Can not insert data in result';
+                return $this->render('quiz_template', [
+                    'questions' => $questions,
+                    'quiz' => $quiz,
+                    'errorOfInsert' => $errorOfInsert,
+                ]);
             } else {
-                $error = '';
-                $success = 'You have successfully passed quiz';
-            }
-
-            $question_count_fromTable = $query->where(['quiz_id' => $id])->count();
-
-            $model_result->insert_result($id, $quiz->min_correct, $count, $question_count_fromTable);
-
-            if ($question_count - 1 == $question_count_fromTable) {
                 return $this->render('quiz_finish', [
                     'count' => $count,
                     'error' => $error,
                     'success' => $success,
-                    'question_count' => $question_count - 1,
+                    'question_count' => $questionCount,
                     'id' => $id,
                 ]);
             }
         }
 
-        $questions = $query->where(['quiz_id' => $id])->all();
-
-        $i = 0;
-        foreach ($questions as $question) {
-            $answers[$i] = Answer::find()
-                ->where(['question_id' => $question->id])
-                ->all();
-            $i++;
-        }
 
         return $this->render('quiz_template', [
             'questions' => $questions,
-            'answers' => $answers,
             'quiz' => $quiz,
         ]);
 

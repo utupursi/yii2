@@ -101,11 +101,7 @@ class AnswerController extends Controller
                 }
             }
         }
-        if (Yii::$app->request->isPost) {
-            $error = 'Number of answers more than limited number';
-        } else {
-            $error = '';
-        }
+        $error = Yii::$app->request->isPost ? 'Number of answers more than limited number' : '';
 
         return $this->render('create', [
             'model' => $model,

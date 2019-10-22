@@ -93,20 +93,21 @@ class QuestionController extends Controller
 
 
         if ($model->load(Yii::$app->request->post())) {
-            $count = Question::find()->where(['quiz_id' => $model->quiz_id])->count();
+            $count = Question::find()
+                ->where(['quiz_id' => $model->quiz_id])
+                ->count();
+
             $question = Quiz::findOne($model->quiz_id);
 
-            if (($question->max_question) >= $count) {
+            if (($question->max_question) > $count) {
                 if ($model->save()) {
                     return $this->redirect(['index', 'id' => $model->quiz_id]);
                 }
             }
         }
-        if (Yii::$app->request->isPost) {
-            $error = 'Number of questions more than limited number';
-        } else {
-            $error = '';
-        }
+
+        $error = Yii::$app->request->isPost ? 'Number of questions more than limited number' : '';
+
 
         return $this->render('create', [
             'model' => $model,

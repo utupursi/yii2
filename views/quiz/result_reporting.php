@@ -1,8 +1,7 @@
 <?php
 
-use yii\helpers\Html;
 use yii\grid\GridView;
-
+/* @var $dataProvider yii\data\ActiveDataProvider */
 ?>
 
 <?= GridView::widget([
@@ -61,7 +60,7 @@ use yii\grid\GridView;
         ],
         ['label' => 'Updated_By',
             'value' => function ($model) {
-                return $model->createdBy->username;
+                return $model->updatedBy->username;
             }
 
         ],

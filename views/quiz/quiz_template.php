@@ -3,10 +3,7 @@
 use yii\helpers\Html;
 
 use yii\widgets\ActiveForm;
-use yii\widgets\LinkPager;
-use yii\helpers\ArrayHelper;
-use yii\db\ActiveQuery;
-USE yii\db\ActiveRecord;
+
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\QuizSearch */
@@ -15,6 +12,7 @@ USE yii\db\ActiveRecord;
 /* @var $model app\controllers\QuizController */
 /* @var $pagination yii\data\Pagination */
 /* @var $quiz yii\gii\controllers\ */
+/* @var $questions app\controllers\QuizController */
 ?>
 
 <!--<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">-->
@@ -25,6 +23,13 @@ USE yii\db\ActiveRecord;
 <div class="container-fluid">
     <div class="modal-dialog">
         <ul>
+            <?php if (isset($errorOfChoose)): ?>
+                <p style="color:red;font-size:20px"><?php echo $errorOfChoose ?></p>
+            <?php endif; ?>
+            <?php if (isset($errorOfInsert)): ?>
+                <p style="color:red;font-size:20px"><?php echo $errorOfInsert ?></p>
+            <?php endif; ?>
+
 
             <?php $form = ActiveForm::begin(); ?>
 
@@ -38,7 +43,6 @@ USE yii\db\ActiveRecord;
 
                 </div>
                 <div class="modal-body">
-                    <?php $i = 0; ?>
 
                     <?php foreach ($questions as $question): ?>
 
@@ -48,27 +52,21 @@ USE yii\db\ActiveRecord;
                                 <?php echo Html::encode("{$question->name} ") ?>
                             </h3>
 
-                            <?php
-                            for ($g = 0; $g < count($answers[$i]); $g++):?>
-
+                            <?php foreach ($question->answers as $answer): ?>
                                 <div class='btn-lg btn-primary btn-block'>
                                     <label>
                                         <?php echo Html::radio("selectedAnswer_{$question->id}", false, [
-                                            'value' => $answers[$i][$g]['id']
+                                            'value' => $answer->id
                                         ]) ?>
-                                        <?php echo $answers[$i][$g]['name']; ?>
-
+                                        <?php echo $answer->name; ?>
                                     </label>
-
                                 </div>
-
-                            <?php endfor; ?>
+                            <?php endforeach; ?>
 
                             <hr>
 
                         </div>
 
-                        <?php $i++ ?>
 
                     <?php endforeach; ?>
 

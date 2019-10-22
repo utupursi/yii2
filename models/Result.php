@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use Yii;
+
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -81,23 +81,30 @@ class Result extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param $id
+     * @param $min_correct
+     * @param $count
+     * @param $question_count
+     * @return bool
      */
-    public function insert_result($id, $min_correct, $count, $question_count)
+    public function insertResult($id, $min_correct, $count, $question_count)
     {
         $result = new Result();
         $result->quiz_id = $id;
         $result->min_correct = $min_correct;
         $result->correct_answer_count = $count;
         $result->number_of_questions = $question_count;
-        if ($result->save()) {
-            return true;
-        }
+        return $result->save();
     }
 
     public function getCreatedBy()
     {
         return $this->hasOne(User::className(), ['id' => 'created_by']);
+    }
+
+    public function getUpdatedBy()
+    {
+        return $this->hasOne(User::className(), ['id' => 'updated_by']);
     }
 
     /**
