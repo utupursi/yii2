@@ -38,6 +38,7 @@ USE yii\db\ActiveRecord;
 
                 </div>
                 <div class="modal-body">
+                    <?php $i = 0; ?>
 
                     <?php foreach ($questions as $question): ?>
 
@@ -47,35 +48,30 @@ USE yii\db\ActiveRecord;
                                 <?php echo Html::encode("{$question->name} ") ?>
                             </h3>
 
-                            <?php $answers = \app\models\Answer::find()
-                                ->where(['question_id' => $question->id])
-                                ->indexBy('id')->all();
-
-                            foreach ($answers as $index => $answer):?>
+                            <?php
+                            for ($g = 0; $g < count($answers[$i]); $g++):?>
 
                                 <div class='btn-lg btn-primary btn-block'>
                                     <label>
                                         <?php echo Html::radio("selectedAnswer_{$question->id}", false, [
-                                            'value' => $answer->id
+                                            'value' => $answers[$i][$g]['id']
                                         ]) ?>
-                                        <?php echo $answer->name; ?>
+                                        <?php echo $answers[$i][$g]['name']; ?>
+
                                     </label>
-                                    <!--                                    <label for="-->
-                                    <?php //echo "selectedAnswer_{$question->id}"
-                                    ?><!--">-->
-                                    <!--                                        --><?php //echo $answer->name
-                                    ?>
-                                    <!--                                    </label>-->
 
                                 </div>
 
-                            <?php endforeach; ?>
+                            <?php endfor; ?>
 
                             <hr>
 
                         </div>
 
+                        <?php $i++ ?>
+
                     <?php endforeach; ?>
+
 
                 </div>
                 <div class="modal-footer text-muted">

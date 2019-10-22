@@ -27,7 +27,7 @@ use yii\grid\GridView;
         ],
         ['label' => 'Percent',
             'value' => function ($model) {
-                return round(($model->correct_answer_count * 100) / ($model->number_of_questions)). '%';
+                return round(($model->correct_answer_count * 100) / ($model->number_of_questions)) . '%';
             }
         ],
 

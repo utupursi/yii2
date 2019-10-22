@@ -6,7 +6,6 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\validators\UniqueValidator;
 
 /**
  * This is the model class for table "quiz".
@@ -15,16 +14,20 @@ use yii\validators\UniqueValidator;
  * @property int $min_correct
  * @property int $created_at
  * @property int $updated_at
- * @property int $created_by
- * @property int $updated_by
  * @property int $max_question
  * @property string $subject
+ * @property int $created_by
+ * @property int $updated_by
+ *
  * @property Question[] $questions
+ * @property User $createdBy
+ * @property Result[] $results
  */
 class Quiz extends \yii\db\ActiveRecord
 {
-
-
+    /**
+     * {@inheritdoc}
+     */
     public static function tableName()
     {
         return 'quiz';
@@ -44,7 +47,6 @@ class Quiz extends \yii\db\ActiveRecord
             ],
 
             'class' => BlameableBehavior::class,
-
         ];
     }
 
@@ -56,7 +58,7 @@ class Quiz extends \yii\db\ActiveRecord
         return [
             [['min_correct', 'created_at', 'updated_at', 'max_question', 'created_by', 'updated_by'], 'integer'],
             [['subject'], 'string', 'max' => 255],
-            [['subject'], 'unique'],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
         ];
     }
 
@@ -72,8 +74,8 @@ class Quiz extends \yii\db\ActiveRecord
             'updated_at' => 'Updated At',
             'max_question' => 'Max Question',
             'subject' => 'Subject',
-            'created_by' => 'Created by',
-            'updated_by' => 'Updated by',
+            'created_by' => 'Created By',
+            'updated_by' => 'Updated By',
         ];
     }
 
@@ -83,5 +85,30 @@ class Quiz extends \yii\db\ActiveRecord
     public function getQuestions()
     {
         return $this->hasMany(Question::className(), ['quiz_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCreatedBy()
+    {
+        return $this->hasOne(User::className(), ['id' => 'created_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+
+    public function getUpdatedBy()
+    {
+        return $this->hasOne(User::className(), ['id' => 'updated_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getResults()
+    {
+        return $this->hasMany(Result::className(), ['quiz_id' => 'id']);
     }
 }

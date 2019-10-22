@@ -31,6 +31,16 @@ $this->params['breadcrumbs'][] = $this->title;
             'is_correct',
             'name',
             'created_at:datetime',
+            ['label' => 'Created By',
+                'value' => function ($model) {
+                    return $model->createdBy['username'];
+                }
+            ],
+            ['label' => 'Updated By',
+                'value'=>function($model){
+                    return $model->updatedBy['username'];
+                }
+            ],
             //'updated_at',
 
             ['class' => 'yii\grid\ActionColumn'],

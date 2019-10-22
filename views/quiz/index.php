@@ -32,6 +32,18 @@ $this->params['breadcrumbs'][] = $this->title;
             'created_at:datetime',
             'updated_at:datetime',
             'max_question',
+
+            ['label' => 'Created By',
+                'value' => function ($model) {
+                    return $model->createdBy['username'];
+                }
+            ],
+
+            ['label' => 'Updated By',
+                'value' => function ($model) {
+                    return $model->updatedBy['username'];
+                }
+            ],
             //'subject',
 
             ['class' => 'yii\grid\ActionColumn'],

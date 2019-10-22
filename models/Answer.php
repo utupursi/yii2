@@ -84,4 +84,15 @@ class Answer extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Question::className(), ['id' => 'question_id']);
     }
+
+    public function getCreatedBy()
+    {
+        return $this->hasOne(User::className(), ['id' => 'created_by']);
+    }
+
+    public function getUpdatedBy()
+    {
+        return $this->hasOne(User::className(), ['id' => 'updated_by']);
+    }
+
 }

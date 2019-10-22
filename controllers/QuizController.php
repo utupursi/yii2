@@ -116,12 +116,18 @@ class QuizController extends Controller
             }
         }
 
-        $question = $query->where(['quiz_id' => $id])->all();
+        $questions = $query->where(['quiz_id' => $id])->all();
 
-        $answers = Answer::find()->indexBy('id')->all();
+        $i = 0;
+        foreach ($questions as $question) {
+            $answers[$i] = Answer::find()
+                ->where(['question_id' => $question->id])
+                ->all();
+            $i++;
+        }
 
         return $this->render('quiz_template', [
-            'questions' => $question,
+            'questions' => $questions,
             'answers' => $answers,
             'quiz' => $quiz,
         ]);

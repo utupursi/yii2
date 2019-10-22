@@ -96,4 +96,15 @@ class Question extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Quiz::className(), ['id' => 'quiz_id']);
     }
+
+    public function getCreatedBy()
+    {
+        return $this->hasOne(User::className(), ['id' => 'created_by']);
+    }
+
+    public function getUpdatedBy()
+    {
+        return $this->hasOne(User::className(), ['id' => 'updated_by']);
+    }
+
 }
