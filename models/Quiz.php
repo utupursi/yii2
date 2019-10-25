@@ -18,9 +18,11 @@ use yii\db\ActiveRecord;
  * @property string $subject
  * @property int $created_by
  * @property int $updated_by
+ * @property int $certificate_valid_time
  *
  * @property Question[] $questions
  * @property User $createdBy
+ * @property User $updatedBy
  * @property Result[] $results
  */
 class Quiz extends \yii\db\ActiveRecord
@@ -56,7 +58,7 @@ class Quiz extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['min_correct', 'created_at', 'updated_at', 'max_question', 'created_by', 'updated_by'], 'integer'],
+            [['min_correct', 'created_at', 'updated_at', 'max_question', 'created_by', 'updated_by', 'certificate_valid_time'], 'integer'],
             [['subject'], 'string', 'max' => 255],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
         ];
@@ -76,6 +78,7 @@ class Quiz extends \yii\db\ActiveRecord
             'subject' => 'Subject',
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
+            'certificate_valid_time' => 'Certificate Valid Time'
         ];
     }
 
@@ -92,7 +95,7 @@ class Quiz extends \yii\db\ActiveRecord
      */
     public function getCreatedBy()
     {
-        return $this->hasOne(User::className(), ['id' => 'created_by']);
+        return $this->hasOne(User::class, ['id' => 'created_by']);
     }
 
     /**
@@ -101,7 +104,7 @@ class Quiz extends \yii\db\ActiveRecord
 
     public function getUpdatedBy()
     {
-        return $this->hasOne(User::className(), ['id' => 'updated_by']);
+        return $this->hasOne(User::class, ['id' => 'updated_by']);
     }
 
     /**

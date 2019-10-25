@@ -37,12 +37,12 @@ $this->params['breadcrumbs'][] = $this->title;
             'updated_at:datetime',
             ['label' => 'Created By',
                 'value' => function ($model) {
-                    return $model->createdBy['username'];
+                    return $model->createdBy->username;
                 }
             ],
             ['label' => 'Updated By',
                 'value'=>function($model){
-                    return $model->updatedBy['username'];
+                    return $model->updatedBy->username;
                 }
             ],
 

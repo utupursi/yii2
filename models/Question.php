@@ -22,6 +22,7 @@ use yii\db\ActiveRecord;
  *
  * @property Answer[] $answers
  * @property Quiz $quiz
+ * @property User $createdBy
  */
 class Question extends \yii\db\ActiveRecord
 {
@@ -60,6 +61,8 @@ class Question extends \yii\db\ActiveRecord
             [['quiz_id', 'max_ans', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['name', 'hint'], 'string', 'max' => 255],
             [['quiz_id'], 'exist', 'skipOnError' => true, 'targetClass' => Quiz::className(), 'targetAttribute' => ['quiz_id' => 'id']],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
+
         ];
     }
 
@@ -96,11 +99,17 @@ class Question extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Quiz::className(), ['id' => 'quiz_id']);
     }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
 
     public function getCreatedBy()
     {
         return $this->hasOne(User::className(), ['id' => 'created_by']);
     }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
 
     public function getUpdatedBy()
     {

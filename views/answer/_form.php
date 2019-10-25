@@ -17,16 +17,15 @@ use yii\helpers\ArrayHelper;
 </style>
 
 <span class="answer-form">
-
     <?php $form = ActiveForm::begin(); ?>
     <?php if ($error) {
         echo "<span id='p'>$error</span>";
     } ?>
-
-
     <?= $form->field($model, 'question_id')->dropDownList(
         ArrayHelper::map(Question::find()->all(), 'id', 'name')
     ) ?>
+
+
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 

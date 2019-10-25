@@ -29,19 +29,25 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'subject',
             'min_correct',
-            'created_at:datetime',
+            [
+            'label'=>'created_at:datetime',
+            'value'=>function($model){
+        return Yii::$app->formatter->asDatetime($model->created_at);
+            }
+
+            ],
             'updated_at:datetime',
             'max_question',
 
             ['label' => 'Created By',
                 'value' => function ($model) {
-                    return $model->createdBy['username'];
+                    return $model->createdBy->username;
                 }
             ],
 
             ['label' => 'Updated By',
                 'value' => function ($model) {
-                    return $model->updatedBy['username'];
+                    return $model->updated_by ? $model->updatedBy->username : '';
                 }
             ],
             //'subject',

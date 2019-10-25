@@ -115,7 +115,7 @@ class QuizController extends Controller
                 ]);
 
             }
-            if (!$modelResult->insertResult($id, $quiz->min_correct, $count, $questionCountFromDb)) {
+            if (!$modelResult->insertResult($quiz->min_correct, $quiz->subject, $count, $questionCountFromDb, $quiz->certificate_valid_time)) {
                 $errorOfInsert = 'Can not insert data in result';
                 return $this->render('quiz_template', [
                     'questions' => $questions,
@@ -228,14 +228,9 @@ class QuizController extends Controller
      */
     public function actionDelete($id)
     {
-        $quiz = new Quiz();
-
-        $search = $quiz->findOne($id);
-        $model = new Result();
-
-        $model->updateAll(['quiz_name' => $search->subject], ['quiz_id' => $id]);
 
         $this->findModel($id)->delete();
+
         return $this->redirect(['index']);
     }
 

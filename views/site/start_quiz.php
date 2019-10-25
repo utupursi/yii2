@@ -12,24 +12,36 @@ use yii\grid\GridView;
 
 <?= GridView::widget([
     'dataProvider' => $dataProvider,
-    'headerRowOptions' => ['style' => 'background-color:yellow'],
+    'headerRowOptions' => ['style' => 'background-color:#00FF7F'],
+'options'=>['style'=>'width:800px'],
     'columns' => [
-        ['class' => 'yii\grid\SerialColumn'],
-        'subject',
-
+        ['class' => 'yii\grid\SerialColumn',],
+        ['label' => 'Subject',
+            'value' => function ($model) {
+                return $model->subject;
+            },
+            'contentOptions' => ['width:30px']
+        ],
 
         ['class' => 'yii\grid\ActionColumn',
             'template' => '{view}',
             'buttons' => [
                 'view' => function ($url) {
                     return Html::a('<span class="btn btn-success">Start</span>', $url);
-                },],
+
+                },
+
+            ],
             'urlCreator' => function ($action, $model) {
                 if ($action === 'view') {
                     $url = '/quiz/quiz?id=' . $model->id;
                     return $url;
                 };
             },
+            'contentOptions' => ['style' => 'width:10px']
         ],
+
     ],
+
+
 ]); ?>

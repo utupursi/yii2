@@ -23,9 +23,8 @@ class ResultSearch extends Result
     public function rules()
     {
         return [
-            [['quiz_id', 'min_correct', 'correct_answer_count', 'number_of_questions', 'quiz_pass_date', 'created_by', 'updated_by'], 'integer'],
+            [['min_correct', 'correct_answer_count', 'number_of_questions', 'quiz_pass_date', 'created_by'], 'integer'],
             [['quiz_name'], 'string', 'max' => 255],
-            [['quiz_id'], 'exist', 'skipOnError' => true, 'targetClass' => Quiz::className(), 'targetAttribute' => ['quiz_id' => 'id']],
         ];
     }
 
@@ -66,13 +65,11 @@ class ResultSearch extends Result
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'quiz_id' => $this->quiz_id,
             'min_correct' => $this->min_correct,
             'correct_answer_count' => $this->correct_answer_count,
             'number_of_questions' => $this->number_of_questions,
             'quiz_pass_date' => $this->quiz_pass_date,
             'created_by' => $this->created_by,
-            'updated_by' => $this->updated_by,
         ]);
 
 //        $query->andFilterWhere(['like', 'name', $this->name])

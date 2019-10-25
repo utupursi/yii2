@@ -1,6 +1,7 @@
 <?php
 
 use yii\grid\GridView;
+
 /* @var $dataProvider yii\data\ActiveDataProvider */
 ?>
 
@@ -12,12 +13,7 @@ use yii\grid\GridView;
 
         ['label' => 'Quiz Name',
             'value' => function ($model) {
-                if ($model->quiz_id != '') {
-                    return $model->quiz->subject;
-                } else {
-                    return $model->quiz_name;
-                }
-
+                return $model->quiz_name;
             }
         ],
         'min_correct',
@@ -52,18 +48,33 @@ use yii\grid\GridView;
                 return Yii::$app->formatter->asDatetime($model->quiz_pass_date);
             }
         ],
-        ['label' => 'Created By',
+        ['label' => 'Passed By',
             'value' => function ($model) {
-                return $model->createdBy->username;
+                return $model->createdBy['username'];
             }
 
         ],
-        ['label' => 'Updated_By',
+        ['label' => 'Validation Time',
             'value' => function ($model) {
-                return $model->updatedBy->username;
-            }
+                if ($model->certificate_valid_time === null) {
+                    return '';
+                }
+                if (date('Y-m-d H:i:s') > $model->certificate_valid_time) {
+                    return 'Invalid';
+                }
 
+                if (date('Y-m-d H:i:s') <= $model->certificate_valid_time) {
+                    return 'Valid';
+                }
+
+
+            },
+
+            'contentOptions' => function ($model) {
+                return ['style' => 'color:' . (date('Y-m-d H:i:s') > $model->certificate_valid_time ? 'red' : 'green')];
+            }
         ],
+
 
     ],
 

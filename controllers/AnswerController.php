@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Question;
+use app\models\Quiz;
 use Yii;
 use app\models\Answer;
 use app\models\AnswerSearch;
@@ -88,6 +89,7 @@ class AnswerController extends Controller
     public function actionCreate()
     {
         $model = new Answer();
+
         $model1 = new Question();
 
 
