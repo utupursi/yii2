@@ -84,7 +84,7 @@ class Result extends \yii\db\ActiveRecord
         $result->quiz_name = $subject;
         $result->correct_answer_count = $count;
         $result->number_of_questions = $countFromTable;
-        $date = date('Y-m-d H:i:s');
+        $date = Yii::$app->formatter->asDatetime(time());
         $date = strtotime(date("Y-m-d H:i:s", strtotime($date)) . '+' . $validTime . 'month');
         if ($minCorrect <= $count) {
             $result->certificate_valid_time = date('Y-m-d H:i:s', $date);
