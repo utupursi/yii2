@@ -116,7 +116,7 @@ class QuizController extends Controller
 
             }
             if (!$modelResult->insertResult($quiz->min_correct, $quiz->subject, $count, $questionCountFromDb, $quiz->certificate_valid_time)) {
-                $errorOfInsert = 'Can not insert data in result';
+                $errorOfInsert = 'Can not save data';
                 return $this->render('quiz_template', [
                     'questions' => $questions,
                     'quiz' => $quiz,

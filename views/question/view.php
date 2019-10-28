@@ -53,7 +53,35 @@ $this->params['breadcrumbs'][] = $this->title;
 
             //'subject',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            ['class' => 'yii\grid\ActionColumn',
+                'template' => '{update} {delete}',
+                'buttons' => [
+                    'update' => function ($url) {
+                        return Html::a('<span class="glyphicon glyphicon-pencil"></span>', $url);
+
+                    },
+                    'delete'=> function($url){
+                        return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url,[
+                            'data' => [
+                                'confirm' => 'Are you sure you want to delete this item?',
+                                'method' => 'post',
+                            ],
+                        ]);
+
+                    }
+
+                ],
+                'urlCreator' => function ($action, $model) {
+                    if ($action === 'update') {
+                        $url = '/answer/update?id=' . $model->id;
+                        return $url;
+                    };
+                    if ($action === 'delete') {
+                        $url = '/answer/delete?id=' . $model->id;
+                        return $url;
+                    };
+                },
+            ],
         ],
     ]); ?>
 

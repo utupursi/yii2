@@ -54,7 +54,7 @@ use yii\grid\GridView;
             }
 
         ],
-        ['label' => 'Validation Time',
+        ['label' => 'Validation',
             'value' => function ($model) {
                 if ($model->certificate_valid_time === null) {
                     return '';
@@ -73,6 +73,17 @@ use yii\grid\GridView;
             'contentOptions' => function ($model) {
                 return ['style' => 'color:' . (date('Y-m-d H:i:s') > $model->certificate_valid_time ? 'red' : 'green')];
             }
+        ],
+        ['label' => 'Valid Until',
+            'value' => function ($model) {
+                  if($model->certificate_valid_time ==null) {
+                      return '';
+                  }
+                  else{
+                      return $model->certificate_valid_time;
+                  }
+            }
+
         ],
 
 

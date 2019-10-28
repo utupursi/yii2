@@ -89,7 +89,6 @@ class AnswerController extends Controller
     public function actionCreate()
     {
         $model = new Answer();
-
         $model1 = new Question();
 
 
@@ -98,8 +97,15 @@ class AnswerController extends Controller
             $question = Question::findOne($model->question_id);
 
             if (($question->max_ans) > $count) {
+
                 if ($model->save()) {
                     return $this->redirect(['index', 'id' => $model->question_id]);
+                } else {
+                    $error = 'Can not save data';
+                    return $this->render('create', [
+                        'model' => $model,
+                        'error' => $error
+                    ]);
                 }
             }
         }

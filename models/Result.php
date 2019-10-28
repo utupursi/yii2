@@ -53,7 +53,7 @@ class Result extends \yii\db\ActiveRecord
     {
         return [
             [['min_correct', 'correct_answer_count', 'number_of_questions', 'quiz_pass_date', 'created_by'], 'integer'],
-            [['certificate_valid_time'],'safe'],
+            [['certificate_valid_time'], 'safe'],
             [['quiz_name'], 'string', 'max' => 255],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
         ];
