@@ -23,21 +23,33 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
+        'headerRowOptions' =>
+            [
+                'style' => 'background-color:yellow; color:#0a73bb',
+            ],
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
             'subject',
             'min_correct',
-            [
-            'label'=>'created_at:datetime',
-            'value'=>function($model){
-        return Yii::$app->formatter->asDatetime($model->created_at);
-            }
 
+            ['label' => 'Created At',
+                'value' => function ($model) {
+                    return yii::$app->formatter->asDatetime($model->created_at);
+                }
             ],
-            'updated_at:datetime',
-            'max_question',
+
+            ['label' => 'Updated At',
+                'value' => function ($model) {
+                    return yii::$app->formatter->asDatetime($model->updated_at);
+                }
+            ],
+
+            ['label' => 'Maximal number of question',
+                'value' => 'max_question'
+            ],
+
 
             ['label' => 'Created By',
                 'value' => function ($model) {

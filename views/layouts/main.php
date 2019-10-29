@@ -43,7 +43,7 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
+
             ['label' => 'Result', 'url' => ['quiz/result']],
 
             Yii::$app->user->isGuest ? (
@@ -55,15 +55,6 @@ AppAsset::register($this);
             ) : "",
             !Yii::$app->user->isGuest ? (
             ['label' => 'Quiz', 'url' => ['/quiz/index']]
-            ) : "",
-
-
-            !Yii::$app->user->isGuest ? (
-            ['label' => 'Question', 'url' => ['/question/index']]
-            ) : "",
-
-            !Yii::$app->user->isGuest ? (
-            ['label' => 'Answer', 'url' => ['/answer/index']]
             ) : "",
 
             Yii::$app->user->isGuest ? (

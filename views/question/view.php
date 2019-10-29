@@ -7,7 +7,7 @@ use yii\grid\GridView;
 /* @var $this yii\web\View */
 /* @var $model app\models\Quiz */
 
-$this->title = $model->id;
+$this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Quizzes', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
@@ -38,7 +38,7 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]) ?>
 
-    <?= Html::a('Create Answer', ['answer/create', 'id' => 1], ['class' => 'btn btn-success'] )?>
+    <?= Html::a('Create Answer', ['answer/create', 'questionId' => $model->id], ['class' => 'btn btn-success'] )?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -47,39 +47,30 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
-            'question_id',
+            ['label' => 'Question',
+                'value'=>function($model){
+                    return $model->question->name;
+                }
+            ],
             'is_correct',
             'name',
-
+            'created_at:datetime',
+            'updated_at:datetime',
             //'subject',
+            ['label' => 'Created By',
+                'value' => function ($model) {
+                    return $model->createdBy->username;
+                }
+            ],
+            ['label' => 'Updated By',
+                'value'=>function($model){
+                    return $model->updatedBy->username;
+                }
+            ],
 
             ['class' => 'yii\grid\ActionColumn',
-                'template' => '{update} {delete}',
-                'buttons' => [
-                    'update' => function ($url) {
-                        return Html::a('<span class="glyphicon glyphicon-pencil"></span>', $url);
-
-                    },
-                    'delete'=> function($url){
-                        return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url,[
-                            'data' => [
-                                'confirm' => 'Are you sure you want to delete this item?',
-                                'method' => 'post',
-                            ],
-                        ]);
-
-                    }
-
-                ],
                 'urlCreator' => function ($action, $model) {
-                    if ($action === 'update') {
-                        $url = '/answer/update?id=' . $model->id;
-                        return $url;
-                    };
-                    if ($action === 'delete') {
-                        $url = '/answer/delete?id=' . $model->id;
-                        return $url;
-                    };
+                    return "/answer/$action?id=" . $model->id;
                 },
             ],
         ],

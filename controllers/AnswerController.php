@@ -31,10 +31,9 @@ class AnswerController extends Controller
             ],
             [
                 'class' => AccessControl::className(),
-                'only' => ['index', 'update', 'view'],
+                'only' => ['index', 'update', 'view', 'create'],
                 'rules' => [
                     [
-                        'actions' => ['index', 'update', 'view'],
                         'allow' => true,
                         'roles' => ['@']
                     ],
@@ -86,10 +85,9 @@ class AnswerController extends Controller
      * @return mixed
      */
 
-    public function actionCreate()
+    public function actionCreate($questionId)
     {
         $model = new Answer();
-        $model1 = new Question();
 
 
         if ($model->load(Yii::$app->request->post())) {
@@ -99,7 +97,7 @@ class AnswerController extends Controller
             if (($question->max_ans) > $count) {
 
                 if ($model->save()) {
-                    return $this->redirect(['index', 'id' => $model->question_id]);
+                    return $this->redirect(['question/view', 'id' => $model->question_id]);
                 } else {
                     $error = 'Can not save data';
                     return $this->render('create', [
@@ -114,6 +112,7 @@ class AnswerController extends Controller
         return $this->render('create', [
             'model' => $model,
             'error' => $error,
+            'questionId' => $questionId
         ]);
     }
 
@@ -129,7 +128,7 @@ class AnswerController extends Controller
         $model = $this->findModel($id);
         if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
-                return $this->redirect(['index', 'id' => $model->id]);
+                return $this->redirect(['question/view', 'id' => $model->question_id]);
             }
         }
 
@@ -147,9 +146,10 @@ class AnswerController extends Controller
      */
     public function actionDelete($id)
     {
+        $model = $this->findModel($id);
         $this->findModel($id)->delete();
 
-        return $this->redirect(['index']);
+        return $this->redirect(['question/view', 'id' => $model->question_id]);
     }
 
     /**

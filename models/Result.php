@@ -76,11 +76,11 @@ class Result extends \yii\db\ActiveRecord
         ];
     }
 
-    public function insertResult($minCorrect, $subject, $count, $countFromTable, $validTime)
+    public function insertResult($minCorrect, $subject, $count, $countFromTable, $validTime,$userId)
     {
         $result = new Result();
         $result->min_correct = $minCorrect;
-        $result->created_by = Yii::$app->user->identity->id;
+        $result->created_by = $userId;
         $result->quiz_name = $subject;
         $result->correct_answer_count = $count;
         $result->number_of_questions = $countFromTable;

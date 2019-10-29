@@ -8,6 +8,7 @@ use yii\helpers\ArrayHelper;
 /* @var $this yii\web\View */
 /* @var $model app\models\Question */
 
+
 /* @var $form yii\widgets\ActiveForm */
 ?>
 <style>
@@ -27,7 +28,7 @@ use yii\helpers\ArrayHelper;
 
     <?= $form->field($model, 'quiz_id')
         ->dropDownList(
-            ArrayHelper::map(Quiz::find()->all(), 'id', 'subject')
+            ArrayHelper::map(Quiz::find()->where(['id'=>$quizId])->all(), 'id', 'subject')
         )
     ?>
 

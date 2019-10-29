@@ -37,10 +37,9 @@ class QuizController extends Controller
             ],
             [
                 'class' => AccessControl::className(),
-                'only' => ['index', 'update', 'view'],
+                'only' => ['index', 'update', 'view', 'create'],
                 'rules' => [
                     [
-                        'actions' => ['index', 'update', 'view'],
                         'allow' => true,
                         'roles' => ['@']
                     ],
@@ -66,68 +65,34 @@ class QuizController extends Controller
 
     public function actionQuiz($id)
     {
-        $modelResult = new Result();
-
-        $quiz = Quiz::findOne($id);
-
-        $questions = Question::find()
-            ->where(['quiz_id' => $id])
-            ->with(['answers'])
-            ->all();
+        $quiz = new Quiz();
 
         if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
-            $count = 0;
-            $questionCount = 0;
-            $answerIds = [];
-
-            foreach ($post as $index => $answerId) {
-                if (strpos($index, 'selectedAnswer') !== false) {
-                    $questionCount++;
-                    $answerIds[] = $answerId;
-                }
-            }
-
-            $answers = Answer::find()
-                ->andWhere(['id' => $answerIds])
-                ->all();
-
-            foreach ($answers as $answer) {
-                if ($answer->is_correct) {
-                    $count++;
-                }
-            }
-
-            $error = $count < $quiz->min_correct ? 'You have  not  passed quiz' : '';
-            $success = $count < $quiz->min_correct ? '' : 'You have successfully passed quiz';
-
-            $questionCountFromDb = Question::find()
-                ->where(['quiz_id' => $id])
-                ->count();
-
-
-            if ($questionCount != $questionCountFromDb) {
+            $quiz->countCorrectAnswers($post, $id);
+            if ($quiz->errorOfChoose() === true) {
                 $errorOfChoose = 'You should answer to all questions';
                 return $this->render('quiz_template', [
-                    'questions' => $questions,
-                    'quiz' => $quiz,
+                    'questions' => $quiz->question,
+                    'quiz' => $quiz->quiz,
                     'errorOfChoose' => $errorOfChoose,
                 ]);
-
             }
-            if (!$modelResult->insertResult($quiz->min_correct, $quiz->subject, $count, $questionCountFromDb, $quiz->certificate_valid_time)) {
+
+
+            if ($quiz->insertData() === false) {
                 $errorOfInsert = 'Can not save data';
                 return $this->render('quiz_template', [
-                    'questions' => $questions,
-                    'quiz' => $quiz,
+                    'questions' => $quiz->question,
+                    'quiz' => $quiz->quiz,
                     'errorOfInsert' => $errorOfInsert,
                 ]);
             } else {
                 return $this->render('quiz_finish', [
-                    'count' => $count,
-                    'error' => $error,
-                    'success' => $success,
-                    'question_count' => $questionCount,
+                    'count' => $quiz->count,
+                    'error' => $quiz->error,
+                    'success' => $quiz->success,
+                    'question_count' => $quiz->questionCount,
                     'id' => $id,
                 ]);
             }
@@ -135,8 +100,8 @@ class QuizController extends Controller
 
 
         return $this->render('quiz_template', [
-            'questions' => $questions,
-            'quiz' => $quiz,
+            'questions' => $quiz->getQuestion($id),
+            'quiz' => $quiz->getQuiz($id)
         ]);
 
     }
@@ -186,11 +151,7 @@ class QuizController extends Controller
 
             return $this->redirect(['view', 'id' => $model->id]);
         }
-        if (Yii::$app->request->isPost) {
-            $error = 'Minimal correct answer can not be more than maximal number of questions';
-        } else {
-            $error = '';
-        }
+        $error = Yii::$app->request->isPost ? 'Minimal correct answer can not be more than maximal number of questions' : '';
 
         return $this->render('create', [
             'model' => $model,
@@ -208,7 +169,6 @@ class QuizController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
         if ($model->load(Yii::$app->request->post())) {
             $model->save();
             return $this->redirect(['index', 'id' => $model->id]);

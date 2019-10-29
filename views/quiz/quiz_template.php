@@ -43,7 +43,6 @@ use yii\widgets\ActiveForm;
 
                 </div>
                 <div class="modal-body">
-
                     <?php foreach ($questions as $question): ?>
 
                         <div class="quiz" id="quiz">
@@ -103,16 +102,3 @@ use yii\widgets\ActiveForm;
 
 
 <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
-<script>
-    let ele = document.getElementsByTagName('input');
-
-    function set() {
-        for (i = 0; i < ele.length; i++) {
-            if (ele[i].checked) {
-                console.log(ele[i]);
-            }
-        }
-
-    }
-
-</script>

@@ -8,7 +8,7 @@ use yii\db\conditions\ConditionInterface;
 use yii\web\IdentityInterface;
 
 /**
- * This is the model class for table "user".
+ * This is the model class for table "users".
  *
  * @property int $id
  * @property string $firstName

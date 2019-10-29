@@ -32,10 +32,9 @@ class QuestionController extends Controller
             ],
             [
                 'class' => AccessControl::className(),
-                'only' => ['index', 'update', 'view'],
+                'only' => ['index', 'update', 'view', 'create'],
                 'rules' => [
                     [
-                        'actions' => ['index', 'update', 'view'],
                         'allow' => true,
                         'roles' => ['@']
                     ],
@@ -86,33 +85,22 @@ class QuestionController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreate($quizId)
     {
         $model = new Question();
-        $model1 = new Quiz();
-
-
         if ($model->load(Yii::$app->request->post())) {
-            $count = Question::find()
-                ->where(['quiz_id' => $model->quiz_id])
-                ->count();
 
-            $question = Quiz::findOne($model->quiz_id);
-
-            if (($question->max_question) > $count) {
-                if ($model->save()) {
-                    return $this->redirect(['index', 'id' => $model->quiz_id]);
-                }
+            if ($model->countQuestion($model) === true) {
+                return $this->redirect(['quiz/view', 'id' => $model->quiz_id]);
             }
         }
 
         $error = Yii::$app->request->isPost ? 'Number of questions more than limited number' : '';
 
 
-        return $this->render('create', [
-            'model' => $model,
+        return $this->render('create', ['model' => $model,
             'error' => $error,
-        ]);
+            'quizId' => $quizId,]);
     }
 
     /**
@@ -127,7 +115,7 @@ class QuestionController extends Controller
         $model = $this->findModel($id);
         if ($model->load(Yii::$app->request->post())) {
             $model->save();
-            return $this->redirect(['index', 'id' => $model->id]);
+            return $this->redirect(['quiz/view', 'id' => $model->quiz_id]);
         }
 
         return $this->render('update', [
@@ -144,9 +132,9 @@ class QuestionController extends Controller
      */
     public function actionDelete($id)
     {
+        $model = $this->findModel($id);
         $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+        return $this->redirect(['quiz/view', 'id' => $model->quiz_id]);
     }
 
     /**

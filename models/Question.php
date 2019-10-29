@@ -62,6 +62,7 @@ class Question extends \yii\db\ActiveRecord
             [['name', 'hint'], 'string', 'max' => 255],
             [['quiz_id'], 'exist', 'skipOnError' => true, 'targetClass' => Quiz::className(), 'targetAttribute' => ['quiz_id' => 'id']],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
+            [['name', 'max_ans'], 'required'],
 
         ];
     }
@@ -84,6 +85,21 @@ class Question extends \yii\db\ActiveRecord
         ];
     }
 
+    public function countQuestion($model)
+    {
+        $count = Question::find()
+            ->where(['quiz_id' => $model->quiz_id])
+            ->count();
+
+        $quiz = Quiz::findOne($model->quiz_id);
+
+        if (($quiz->max_question) > $count) {
+            if ($model->save()) {
+                return true;
+            }
+        }
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -99,6 +115,7 @@ class Question extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Quiz::className(), ['id' => 'quiz_id']);
     }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -107,6 +124,7 @@ class Question extends \yii\db\ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'created_by']);
     }
+
     /**
      * @return \yii\db\ActiveQuery
      */

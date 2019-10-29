@@ -22,7 +22,7 @@ use yii\helpers\ArrayHelper;
         echo "<span id='p'>$error</span>";
     } ?>
     <?= $form->field($model, 'question_id')->dropDownList(
-        ArrayHelper::map(Question::find()->all(), 'id', 'name')
+        ArrayHelper::map(Question::find()->where(['id'=>$quizId])->all(), 'id', 'name')
     ) ?>
 
 

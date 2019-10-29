@@ -9,7 +9,7 @@ use yii\helpers\Html;
 
 
 $this->title = 'Create Question';
-$this->params['breadcrumbs'][] = ['label' => 'Questions', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Questions', 'url' => ['quiz/view','id'=>$quizId]];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="question-create">
@@ -21,6 +21,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= $this->render('_form', [
         'model' => $model,
         'error' =>$error,
+        'quizId'=>$quizId,
     ]) ?>
 
 </div>

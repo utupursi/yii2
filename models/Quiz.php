@@ -27,6 +27,14 @@ use yii\db\ActiveRecord;
  */
 class Quiz extends \yii\db\ActiveRecord
 {
+    public $questionCount;
+    public $questionCountFromDb;
+    public $quiz;
+    public $count;
+    public $question;
+    public $success;
+    public $error;
+
     /**
      * {@inheritdoc}
      */
@@ -61,6 +69,7 @@ class Quiz extends \yii\db\ActiveRecord
             [['min_correct', 'created_at', 'updated_at', 'max_question', 'created_by', 'updated_by', 'certificate_valid_time'], 'integer'],
             [['subject'], 'string', 'max' => 255],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
+            [['subject', 'min_correct', 'max_question', 'certificate_valid_time'], 'required']
         ];
     }
 
@@ -80,6 +89,80 @@ class Quiz extends \yii\db\ActiveRecord
             'updated_by' => 'Updated By',
             'certificate_valid_time' => 'Certificate Valid Time'
         ];
+    }
+
+    public function getQuiz($id)
+    {
+        $this->quiz = Quiz::findOne($id);
+        return $this->quiz;
+    }
+
+    public function getQuestion($id)
+    {
+        $this->question = Question::find()
+            ->where(['quiz_id' => $id])
+            ->with(['answers'])
+            ->all();
+        return $this->question;
+    }
+
+    public function countCorrectAnswers($getPost, $id)
+    {
+        $this->quiz = Quiz::findOne($id);
+        $this->question = Question::find()
+            ->where(['quiz_id' => $id])
+            ->with(['answers'])
+            ->all();
+
+        $post = $getPost;
+        $this->count = 0;
+        $this->questionCount = 0;
+        $answerIds = [];
+
+        foreach ($post as $index => $answerId) {
+            if (strpos($index, 'selectedAnswer') !== false) {
+                $this->questionCount++;
+                $answerIds[] = $answerId;
+            }
+        }
+
+        $answers = Answer::find()
+            ->andWhere(['id' => $answerIds])
+            ->all();
+
+        foreach ($answers as $answer) {
+            if ($answer->is_correct) {
+                $this->count++;
+            }
+        }
+
+        $this->error = $this->count < $this->quiz->min_correct ? 'You have  not  passed quiz' : '';
+        $this->success = $this->count < $this->quiz->min_correct ? '' : 'You have successfully passed quiz';
+
+        $this->questionCountFromDb = Question::find()
+            ->where(['quiz_id' => $id])
+            ->count();
+
+
+    }
+
+    public function errorOfChoose()
+    {
+
+        if ($this->questionCount != $this->questionCountFromDb) {
+            return true;
+        }
+
+    }
+
+    public function insertData()
+    {
+        $modelResult = new Result();
+
+        if (!$modelResult->insertResult($this->quiz->min_correct, $this->quiz->subject, $this->count,
+            $this->questionCountFromDb, $this->quiz->certificate_valid_time, Yii::$app->user->identity->id)) {
+            return false;
+        }
     }
 
     /**
