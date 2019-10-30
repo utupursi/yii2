@@ -2,10 +2,12 @@
 
 namespace app\models;
 
+use Symfony\Component\CssSelector\Tests\Node\AbstractNodeTest;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\helpers\VarDumper;
 
 /**
  * This is the model class for table "quiz".
@@ -34,6 +36,9 @@ class Quiz extends \yii\db\ActiveRecord
     public $question;
     public $success;
     public $error;
+    public $searchModel;
+    public $dataProvider;
+    public $masivi;
 
     /**
      * {@inheritdoc}
@@ -69,7 +74,8 @@ class Quiz extends \yii\db\ActiveRecord
             [['min_correct', 'created_at', 'updated_at', 'max_question', 'created_by', 'updated_by', 'certificate_valid_time'], 'integer'],
             [['subject'], 'string', 'max' => 255],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
-            [['subject', 'min_correct', 'max_question', 'certificate_valid_time'], 'required']
+            [['subject', 'min_correct', 'max_question', 'certificate_valid_time'], 'required'],
+            [['min_correct', 'max_question'], 'integer', 'min' => 0],
         ];
     }
 
@@ -162,6 +168,52 @@ class Quiz extends \yii\db\ActiveRecord
         if (!$modelResult->insertResult($this->quiz->min_correct, $this->quiz->subject, $this->count,
             $this->questionCountFromDb, $this->quiz->certificate_valid_time, Yii::$app->user->identity->id)) {
             return false;
+        }
+    }
+
+    public function errorOfQuiz($id)
+    {
+        $ques = Question::find()->where(['quiz_id' => $id])->all();
+        $this->masivi = [];
+
+        foreach ($ques as $qu) {
+            $this->masivi[] = $qu['id'];;
+        }
+
+
+        if ($ques == []) {
+            $this->searchModel = new QuizSearch();
+            $this->dataProvider = $this->searchModel->search(Yii::$app->request->queryParams);
+            return true;
+        }
+    }
+
+    public function errorOfAnswers()
+    {
+        $answer = Answer::find()->where(['question_id' => $this->masivi])->asArray()->all();
+        $i = 0;
+        $g = 0;
+        $array = [];
+        foreach ($answer as $ans) {
+            $array[] = $ans['question_id'];
+
+        }
+        $arrayOfQuestionId = array_unique($array);
+
+        foreach ($arrayOfQuestionId as $arr) {
+            if (in_array($arr, $this->masivi)) {
+                $ansArray[] = $arr;
+            }
+        }
+
+        if (isset($ansArray) == false) {
+            $ansArray = [];
+        }
+
+        if (count($ansArray) != count($this->masivi)) {
+            $this->searchModel = new QuizSearch();
+            $this->dataProvider = $this->searchModel->search(Yii::$app->request->queryParams);
+            return true;
         }
     }
 

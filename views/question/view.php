@@ -8,7 +8,7 @@ use yii\grid\GridView;
 /* @var $model app\models\Quiz */
 
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Quizzes', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Quizzes', 'url' => ['quiz/index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
@@ -37,8 +37,8 @@ $this->params['breadcrumbs'][] = $this->title;
             'max_ans',
         ],
     ]) ?>
-
-    <?= Html::a('Create Answer', ['answer/create', 'questionId' => $model->id], ['class' => 'btn btn-success'] )?>
+    <h3>Answers</h3>
+    <?= Html::a('Create Answer', ['answer/create', 'questionId' => $model->id], ['class' => 'btn btn-success']) ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -48,7 +48,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             ['label' => 'Question',
-                'value'=>function($model){
+                'value' => function ($model) {
                     return $model->question->name;
                 }
             ],
@@ -63,7 +63,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 }
             ],
             ['label' => 'Updated By',
-                'value'=>function($model){
+                'value' => function ($model) {
                     return $model->updatedBy->username;
                 }
             ],

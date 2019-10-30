@@ -54,12 +54,14 @@ class QuizController extends Controller
      */
     public function actionIndex()
     {
+        $model=new Quiz();
         $searchModel = new QuizSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+            'model'=>$model,
         ]);
     }
 
@@ -97,12 +99,28 @@ class QuizController extends Controller
                 ]);
             }
         }
+        if ($quiz->errorOfQuiz($id) === true) {
+            $errorOfQuiz = 'You can not pass quiz,quiz does not have questions';
+            return $this->render('start_quiz', [
+                'searchModel' => $quiz->searchModel,
+                'dataProvider' => $quiz->dataProvider,
+                'errorOfQuiz' => $errorOfQuiz,
+            ]);
+        }
+        if ($quiz->errorOfAnswers() === true) {
+            $errorOfAnswer = 'You can not pass quiz,quiz does not have answers';
+            return $this->render('start_quiz', [
+                'searchModel' => $quiz->searchModel,
+                'dataProvider' => $quiz->dataProvider,
+                'errorOfAnswer' => $errorOfAnswer
+            ]);
 
-
-        return $this->render('quiz_template', [
-            'questions' => $quiz->getQuestion($id),
-            'quiz' => $quiz->getQuiz($id)
-        ]);
+        } else {
+            return $this->render('quiz_template', [
+                'questions' => $quiz->getQuestion($id),
+                'quiz' => $quiz->getQuiz($id)
+            ]);
+        }
 
     }
 
@@ -118,6 +136,19 @@ class QuizController extends Controller
         ]);
     }
 
+    public function actionStart()
+    {
+
+        $searchModel = new QuizSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+
+        return $this->render('start_quiz', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'errorOfQuiz' => '',
+        ]);
+    }
 
     /**
      * Displays a single Quiz model.

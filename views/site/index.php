@@ -14,7 +14,7 @@ use yii\helpers\Html;
 <?php endif;?>
     <?php if(!Yii::$app->user->isGuest):?>
         <div id="o"><?= Html::a('Create Quiz', ['quiz/create'], ['class' => 'btn btn-success']) ?>
-            <?= Html::a('Start Quiz', ['site/start'], ['class' => 'btn btn-success']) ?>
+            <?= Html::a('Start Quiz', ['quiz/start'], ['class' => 'btn btn-success']) ?>
 
         </div>
     <?php endif;?>

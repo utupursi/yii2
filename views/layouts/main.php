@@ -51,7 +51,7 @@ AppAsset::register($this);
             ) : "",
 
             !Yii::$app->user->isGuest ? (
-            ['label' => 'Start Quiz', 'url' => ['/site/start']]
+            ['label' => 'Start Quiz', 'url' => ['/quiz/start']]
             ) : "",
             !Yii::$app->user->isGuest ? (
             ['label' => 'Quiz', 'url' => ['/quiz/index']]

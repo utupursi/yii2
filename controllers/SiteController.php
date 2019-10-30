@@ -214,18 +214,7 @@ class SiteController extends Controller
     }
 
 
-    public function actionStart()
-    {
 
-        $searchModel = new QuizSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-
-        return $this->render('start_quiz', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
-    }
 
     public function actionUpload()
     {

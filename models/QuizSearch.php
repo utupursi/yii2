@@ -6,6 +6,8 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\Quiz;
 
+
+
 /**
  * QuizSearch represents the model behind the search form of `app\models\Quiz`.
  */
@@ -63,6 +65,8 @@ class QuizSearch extends Quiz
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'max_question' => $this->max_question,
+            'created_by' =>$this->created_by,
+            'updated_by'=>$this->updated_by,
         ]);
 
         $query->andFilterWhere(['like', 'subject', $this->subject]);

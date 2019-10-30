@@ -63,6 +63,7 @@ class Question extends \yii\db\ActiveRecord
             [['quiz_id'], 'exist', 'skipOnError' => true, 'targetClass' => Quiz::className(), 'targetAttribute' => ['quiz_id' => 'id']],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
             [['name', 'max_ans'], 'required'],
+            [['max_ans'], 'integer', 'min' => 0]
 
         ];
     }
