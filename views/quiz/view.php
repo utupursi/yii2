@@ -3,11 +3,11 @@
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 use yii\grid\GridView;
-
+use dosamigos\datepicker\DatePicker;
 /* @var $this yii\web\View */
 /* @var $model app\models\Quiz */
 
-$this->title=$model->subject;
+$this->title = $model->subject;
 $this->params['breadcrumbs'][] = ['label' => 'Quizzes', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
@@ -41,7 +41,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h3>Questions</h3>
     <?= Html::a('Create Question', ['question/create', 'quizId' => $model->id], ['class' => 'btn btn-success']) ?>
-    <?php $r=$model->id?>
+    <?php $r = $model->id ?>
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
@@ -52,16 +52,37 @@ $this->params['breadcrumbs'][] = $this->title;
             'name',
             'hint',
             'max_ans',
-            'created_at:datetime',
-            'updated_at:datetime',
-            'updated_at:datetime',
+            ['label' => 'Created At',
+                'attribute' => 'created_at',
+                'value' => function ($model) {
+                    return Yii::$app->formatter->asDate($model->created_at);
+
+                },
+                'format' => 'raw',
+                'filter' => DatePicker::widget([
+                    'model' => $searchModel,
+                    'attribute' => 'created_at',
+
+                ]),
+            ],
+
+            ['filter' => DatePicker::widget([
+                'model' => $searchModel,
+                'attribute' => 'updated_at',
+            ]),
+
+                'label' => 'Updated At',
+                'value' => function ($model) {
+                    return Yii::$app->formatter->asDate($model->updated_at);
+                }
+            ],
             ['label' => 'Created By',
                 'value' => function ($model) {
                     return $model->createdBy->username;
                 }
             ],
             ['label' => 'Updated By',
-                'value'=>function($model){
+                'value' => function ($model) {
                     return $model->updatedBy->username;
                 }
             ],

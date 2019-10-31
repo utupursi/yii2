@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use dosamigos\datepicker\DatePicker;
+use phpDocumentor\Reflection\DocBlock\Tags\Param;
 use Symfony\Component\CssSelector\Tests\Node\AbstractNodeTest;
 use Yii;
 use yii\behaviors\BlameableBehavior;
@@ -55,13 +57,14 @@ class Quiz extends \yii\db\ActiveRecord
                 'class' => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_AFTER_UPDATE => ['updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
                 // if you're using datetime instead of UNIX timestamp:
                 // 'value' => new Expression('NOW()'),
             ],
 
             'class' => BlameableBehavior::class,
+
         ];
     }
 
@@ -75,9 +78,23 @@ class Quiz extends \yii\db\ActiveRecord
             [['subject'], 'string', 'max' => 255],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
             [['subject', 'min_correct', 'max_question', 'certificate_valid_time'], 'required'],
-            [['min_correct', 'max_question'], 'integer', 'min' => 0],
+            [['min_correct',], 'integer', 'min' => 0, 'max' => 20],
+            [['max_question'], 'integer', 'min' => 1, 'max' => 20],
+            ['max_question', 'compare', 'operator' => '>=', 'compareAttribute' => 'min_correct'],
+            ['max_question', 'count'],
         ];
     }
+
+    public function count($attribute, $params)
+    {
+        $questionsCount = Question::find()->where(['quiz_id' => $this->id])->count();
+
+        if ($this->max_question < $questionsCount) {
+            $this->addError($attribute, 'Maximal number questions can not be less than current number of questions');
+        }
+
+    }
+
 
     /**
      * {@inheritdoc}
@@ -86,14 +103,14 @@ class Quiz extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'min_correct' => 'Min Correct',
+            'min_correct' => 'Minimal correct questions',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
-            'max_question' => 'Max Question',
+            'max_question' => 'Maximal Question',
             'subject' => 'Subject',
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
-            'certificate_valid_time' => 'Certificate Valid Time'
+            'certificate_valid_time' => 'Certificate Valid Time(Month)'
         ];
     }
 
@@ -215,6 +232,18 @@ class Quiz extends \yii\db\ActiveRecord
             $this->dataProvider = $this->searchModel->search(Yii::$app->request->queryParams);
             return true;
         }
+    }
+
+    public function dropDownListItem()
+    {
+        $items = [
+            0 => 1,
+            1 => 2,
+            2 => 3,
+            3 => 4,
+            4 => 8,
+        ];
+        return $items;
     }
 
     /**

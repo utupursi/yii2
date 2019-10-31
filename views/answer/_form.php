@@ -17,12 +17,12 @@ use yii\helpers\ArrayHelper;
 </style>
 
 <span class="answer-form">
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin(['enableAjaxValidation' => true]); ?>
     <?php if ($error) {
         echo "<span id='p'>$error</span>";
     } ?>
     <?= $form->field($model, 'question_id')->dropDownList(
-        ArrayHelper::map(Question::find()->where(['id'=>$quizId])->all(), 'id', 'name')
+        ArrayHelper::map(Question::find()->where(['id' => $questionId])->all(), 'id', 'name')
     ) ?>
 
 

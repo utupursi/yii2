@@ -37,7 +37,7 @@ class Question extends \yii\db\ActiveRecord
                 'class' => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_AFTER_UPDATE => ['updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
                 // if you're using datetime instead of UNIX timestamp:
                 // 'value' => new Expression('NOW()'),
@@ -63,7 +63,8 @@ class Question extends \yii\db\ActiveRecord
             [['quiz_id'], 'exist', 'skipOnError' => true, 'targetClass' => Quiz::className(), 'targetAttribute' => ['quiz_id' => 'id']],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
             [['name', 'max_ans'], 'required'],
-            [['max_ans'], 'integer', 'min' => 0]
+            [['max_ans'], 'integer', 'min' => 1,'max'=>20],
+            ['max_ans','countAnswer'],
 
         ];
     }
@@ -84,6 +85,15 @@ class Question extends \yii\db\ActiveRecord
             'created_by' => 'Created By',
             'updated_by' => 'Updated By'
         ];
+    }
+
+    public function countAnswer($attribute){
+        $answersCount = Answer::find()->where(['question_id' => $this->id])->count();
+
+        if ($this->max_ans<$answersCount) {
+            $this->addError($attribute, 'Maximal number of answers can not be less than current number of answers');
+        }
+
     }
 
     public function countQuestion($model)

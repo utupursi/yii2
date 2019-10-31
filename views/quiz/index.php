@@ -36,32 +36,37 @@ $this->params['breadcrumbs'][] = $this->title;
             'min_correct',
             ['label' => 'Created At',
                 'attribute' => 'created_at',
-                'value' => 'created_at',
+                'value' => function ($model) {
+                    return Yii::$app->formatter->asDate($model->created_at);
+
+                },
                 'format' => 'raw',
                 'filter' => DatePicker::widget([
                     'model' => $searchModel,
                     'attribute' => 'created_at',
-                    'clientOptions' => [
-                        'autoclose' => true,
-                        'format' => 'yyyy-m-d'
-                    ]
+
                 ]),
-
             ],
 
-            'updated_at:datetime',
-            ['label' => 'max_question',
-                'value' => 'max_question'
-            ],
+            ['filter' => DatePicker::widget([
+                'model' => $searchModel,
+                'attribute' => 'updated_at',
+            ]),
 
-
-            ['label' => 'Created By',
+                'label' => 'Updated At',
                 'value' => function ($model) {
-                    return $model->createdBy->username;
+                    return Yii::$app->formatter->asDate($model->updated_at);
                 }
             ],
-
-            ['label' => 'Updated By',
+            'max_question',
+            [
+                'label' => 'Created By',
+                'value' => function ($model) {
+                    return $model->created_by ? $model->createdBy->username : '';
+                }
+            ],
+            [
+                'label' => 'Updated By',
                 'value' => function ($model) {
                     return $model->updated_by ? $model->updatedBy->username : '';
                 }

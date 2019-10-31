@@ -19,7 +19,7 @@ use yii\helpers\ArrayHelper;
 
 <div class="question-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin(['enableAjaxValidation'=>true]); ?>
 
     <?= $form->field($model, 'quiz_id')
         ->dropDownList(

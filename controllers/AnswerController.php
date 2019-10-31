@@ -11,6 +11,7 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\widgets\ActiveForm;
 
 /**
  * AnswerController implements the CRUD actions for Answer model.
@@ -68,7 +69,7 @@ class AnswerController extends Controller
 
 
         $searchModel = new  AnswerSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $id);
 
 
         return $this->render('view', [
@@ -88,7 +89,10 @@ class AnswerController extends Controller
     public function actionCreate($questionId)
     {
         $model = new Answer();
-
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = 'json';
+            return ActiveForm::validate($model);
+        }
 
         if ($model->load(Yii::$app->request->post())) {
             $count = Answer::find()->where(['question_id' => $model->question_id])->count();
@@ -126,6 +130,11 @@ class AnswerController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = 'json';
+            return ActiveForm::validate($model);
+        }
+
         if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
                 return $this->redirect(['question/view', 'id' => $model->question_id]);

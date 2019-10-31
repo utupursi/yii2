@@ -2,10 +2,10 @@
 
 namespace app\models;
 
+use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\Quiz;
-
 
 
 /**
@@ -19,8 +19,10 @@ class QuizSearch extends Quiz
     public function rules()
     {
         return [
-            [['id', 'min_correct', 'created_at', 'updated_at', 'max_question'], 'integer'],
+            [['id', 'min_correct', 'updated_at', 'max_question'], 'integer'],
+            [['created_by', 'updated_by'], 'string'],
             [['subject'], 'safe'],
+            [['created_at', 'updated_at'], 'safe'],
         ];
     }
 
@@ -43,7 +45,6 @@ class QuizSearch extends Quiz
     public function search($params)
     {
         $query = Quiz::find();
-
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
@@ -51,57 +52,38 @@ class QuizSearch extends Quiz
         ]);
 
         $this->load($params);
+        if ($this->created_at) {
+            $createStart = strtotime($this->created_at);
+            $createEnd = $createStart + 86400;
+            $query->andFilterWhere([
+                'between', 'created_at', $createStart, $createEnd
+            ]);
+        }
+        if ($this->updated_at) {
+            $createStart = strtotime($this->updated_at);
+            $createEnd = $createStart + 86400;
+            $query->andFilterWhere([
+                'between', 'updated_at', $createStart, $createEnd
+            ]);
+        }
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
             // $query->where('0=1');
             return $dataProvider;
         }
+
 
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
             'min_correct' => $this->min_correct,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
             'max_question' => $this->max_question,
-            'created_by' =>$this->created_by,
-            'updated_by'=>$this->updated_by,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
         ]);
 
         $query->andFilterWhere(['like', 'subject', $this->subject]);
-
-        return $dataProvider;
-    }
-    public function search1($params, $id)
-    {
-        $query = Question::find();
-
-        // add conditions that should always apply here
-
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-        ]);
-
-        $this->load($params);
-
-        if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
-            return $dataProvider;
-        }
-
-        // grid filtering conditions
-        $query->andFilterWhere([
-            'id' => $this->id,
-            'quiz_id' => $id,
-            'max_ans' => $this->max_ans,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ]);
-
-        $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'hint', $this->hint]);
 
         return $dataProvider;
     }

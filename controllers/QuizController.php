@@ -17,6 +17,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\db\ActiveRecord;
+use yii\widgets\ActiveForm;
 
 /**
  * QuizController implements the CRUD actions for Quiz model.
@@ -54,14 +55,14 @@ class QuizController extends Controller
      */
     public function actionIndex()
     {
-        $model=new Quiz();
+        $model = new Quiz();
         $searchModel = new QuizSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-            'model'=>$model,
+            'model' => $model,
         ]);
     }
 
@@ -159,13 +160,14 @@ class QuizController extends Controller
     public function actionView($id)
     {
         $searchModel = new QuestionSearch();
-        $dataProvider = $searchModel->search1(Yii::$app->request->queryParams, $id);
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams,$id);
 
 
         return $this->render('view', [
             'model' => $this->findModel($id),
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+
         ]);
     }
 
@@ -182,11 +184,11 @@ class QuizController extends Controller
 
             return $this->redirect(['view', 'id' => $model->id]);
         }
-        $error = Yii::$app->request->isPost ? 'Minimal correct answer can not be more than maximal number of questions' : '';
+
 
         return $this->render('create', [
             'model' => $model,
-            'error' => $error,
+            'dropDownListItems' => $model->dropDownListItem(),
         ]);
     }
 
@@ -200,6 +202,11 @@ class QuizController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = 'json';
+            return ActiveForm::validate($model);
+        }
+
         if ($model->load(Yii::$app->request->post())) {
             $model->save();
             return $this->redirect(['index', 'id' => $model->id]);

@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 use yii\grid\GridView;
+use dosamigos\datepicker\DatePicker;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Quiz */
@@ -32,9 +33,11 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
-            'quiz_id',
+
             'name',
             'max_ans',
+            'created_at:datetime',
+            'updated_at:datetime',
         ],
     ]) ?>
     <h3>Answers</h3>
@@ -54,8 +57,30 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             'is_correct',
             'name',
-            'created_at:datetime',
-            'updated_at:datetime',
+            ['label' => 'Created At',
+                'attribute' => 'created_at',
+                'value' => function ($model) {
+                    return Yii::$app->formatter->asDate($model->created_at);
+
+                },
+                'format' => 'raw',
+                'filter' => DatePicker::widget([
+                    'model' => $searchModel,
+                    'attribute' => 'created_at',
+
+                ]),
+            ],
+
+            ['filter' => DatePicker::widget([
+                'model' => $searchModel,
+                'attribute' => 'updated_at',
+            ]),
+
+                'label' => 'Updated At',
+                'value' => function ($model) {
+                    return Yii::$app->formatter->asDate($model->updated_at);
+                }
+            ],
             //'subject',
             ['label' => 'Created By',
                 'value' => function ($model) {

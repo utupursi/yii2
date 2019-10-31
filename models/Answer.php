@@ -6,6 +6,7 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\widgets\ActiveForm;
 
 /**
  * This is the model class for table "answer".
@@ -33,7 +34,7 @@ class Answer extends \yii\db\ActiveRecord
                 'class' => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_AFTER_UPDATE => ['updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
                 // if you're using datetime instead of UNIX timestamp:
                 // 'value' => new Expression('NOW()'),
@@ -57,7 +58,8 @@ class Answer extends \yii\db\ActiveRecord
             [['question_id', 'is_correct', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['question_id'], 'exist', 'skipOnError' => true, 'targetClass' => Question::className(), 'targetAttribute' => ['question_id' => 'id']],
-            [['name'],'required']
+            [['name'], 'required'],
+            ['is_correct', 'count'],
         ];
     }
 
@@ -81,6 +83,44 @@ class Answer extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+
+    public function count($attribute)
+    {
+        if ($this->is_correct == 1) {
+            $questionsCount = Answer::find()->where(['question_id' => $this->question_id])->all();
+            foreach ($questionsCount as $question) {
+
+                if ($question['is_correct'] == 1 && $question['name'] != $this->name) {
+                    $this->addError($attribute, 'Correct answer is already exist');
+                    break;
+                }
+            }
+        }
+    }
+
+    public function answerCount()
+    {
+        $count = Answer::find()->where(['question_id' => $this->question_id])->count();
+        $question = Question::findOne($this->question_id);
+        if (($question->max_ans) > $count) {
+            return true;
+        } else {
+            return false;
+        }
+
+
+    }
+
+    public function inserData()
+    {
+        if ($this->save()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
     public function getQuestion()
     {
         return $this->hasOne(Question::className(), ['id' => 'question_id']);

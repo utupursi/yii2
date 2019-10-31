@@ -18,8 +18,9 @@ class AnswerSearch extends Answer
     public function rules()
     {
         return [
-            [['id', 'question_id', 'is_correct', 'created_at', 'updated_at'], 'integer'],
+            [['id', 'question_id', 'is_correct'], 'integer'],
             [['name'], 'safe'],
+            [['created_at', 'updated_at'],'safe'],
         ];
     }
 
@@ -39,7 +40,7 @@ class AnswerSearch extends Answer
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params, $id)
     {
         $query = Answer::find();
 
@@ -51,38 +52,20 @@ class AnswerSearch extends Answer
 
         $this->load($params);
 
-        if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
-            return $dataProvider;
+        if ($this->created_at) {
+            $createStart = strtotime($this->created_at);
+            $createEnd = $createStart + 86400;
+            $query->andFilterWhere([
+                'between', 'created_at', $createStart, $createEnd
+            ]);
         }
-
-        // grid filtering conditions
-        $query->andFilterWhere([
-            'id' => $this->id,
-            'question_id' => $this->question_id,
-            'is_correct' => $this->is_correct,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ]);
-
-        $query->andFilterWhere(['like', 'name', $this->name]);
-
-        return $dataProvider;
-    }
-
-    public function search1($params, $id)
-    {
-        $query = Answer::find();
-
-        // add conditions that should always apply here
-
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-        ]);
-
-        $this->load($params);
-
+        if ($this->updated_at) {
+            $createStart = strtotime($this->updated_at);
+            $createEnd = $createStart + 86400;
+            $query->andFilterWhere([
+                'between', 'updated_at', $createStart, $createEnd
+            ]);
+        }
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
             // $query->where('0=1');
@@ -94,12 +77,13 @@ class AnswerSearch extends Answer
             'id' => $this->id,
             'question_id' => $id,
             'is_correct' => $this->is_correct,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name]);
 
         return $dataProvider;
     }
+
+
 }
