@@ -89,6 +89,8 @@ class AnswerController extends Controller
     public function actionCreate($questionId)
     {
         $model = new Answer();
+        $model->scenario = 'create';
+
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = 'json';
             return ActiveForm::validate($model);

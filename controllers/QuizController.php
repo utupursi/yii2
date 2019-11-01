@@ -17,6 +17,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\db\ActiveRecord;
+use yii\web\Response;
 use yii\widgets\ActiveForm;
 
 /**
@@ -109,11 +110,20 @@ class QuizController extends Controller
             ]);
         }
         if ($quiz->errorOfAnswers() === true) {
-            $errorOfAnswer = 'You can not pass quiz,quiz does not have answers';
+            $errorOfAnswer = 'You can not pass quiz,some questions  does not have enough number of answers';
             return $this->render('start_quiz', [
                 'searchModel' => $quiz->searchModel,
                 'dataProvider' => $quiz->dataProvider,
                 'errorOfAnswer' => $errorOfAnswer
+            ]);
+
+        }
+        if ($quiz->errorOfCorrectAnswers()===true) {
+            $errorOfCorrectAnswers = 'Some Answers does not have correct answers';
+            return $this->render('start_quiz', [
+                'searchModel' => $quiz->searchModel,
+                'dataProvider' => $quiz->dataProvider,
+                'errorOfCorrectAnswers' => $errorOfCorrectAnswers,
             ]);
 
         } else {
@@ -160,7 +170,7 @@ class QuizController extends Controller
     public function actionView($id)
     {
         $searchModel = new QuestionSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams,$id);
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $id);
 
 
         return $this->render('view', [
@@ -202,8 +212,9 @@ class QuizController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
-            Yii::$app->response->format = 'json';
+            Yii::$app->response->format = Response::FORMAT_JSON;
             return ActiveForm::validate($model);
         }
 

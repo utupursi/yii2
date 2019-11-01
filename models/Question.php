@@ -64,7 +64,7 @@ class Question extends \yii\db\ActiveRecord
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
             [['name', 'max_ans'], 'required'],
             [['max_ans'], 'integer', 'min' => 1,'max'=>20],
-            ['max_ans','countAnswer'],
+            ['max_ans','countNumberOfAnswer'],
 
         ];
     }
@@ -87,7 +87,7 @@ class Question extends \yii\db\ActiveRecord
         ];
     }
 
-    public function countAnswer($attribute){
+    public function countNumberOfAnswer($attribute){
         $answersCount = Answer::find()->where(['question_id' => $this->id])->count();
 
         if ($this->max_ans<$answersCount) {

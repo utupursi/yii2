@@ -19,7 +19,7 @@ use yii\helpers\ArrayHelper;
 
 <div class="question-form">
 
-    <?php $form = ActiveForm::begin(['enableAjaxValidation'=>true]); ?>
+    <?php $form = ActiveForm::begin(); ?>
 
     <?= $form->field($model, 'quiz_id')
         ->dropDownList(
@@ -31,7 +31,7 @@ use yii\helpers\ArrayHelper;
 
     <?= $form->field($model, 'hint')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'max_ans')->textInput() ?>
+    <?= $form->field($model, 'max_ans',['enableAjaxValidation'=>true])->textInput() ?>
 
 
     <div class="form-group">

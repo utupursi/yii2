@@ -44,7 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => DatePicker::widget([
                     'model' => $searchModel,
                     'attribute' => 'created_at',
-
+                  
                 ]),
             ],
 

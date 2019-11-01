@@ -13,7 +13,7 @@ $this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id
 $this->params['breadcrumbs'][] = 'Update';
 ?>
 <div class="answer-update">
-    <?php $form = ActiveForm::begin(['enableAjaxValidation' => true]); ?>
+    <?php $form = ActiveForm::begin(); ?>
 
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -22,7 +22,7 @@ $this->params['breadcrumbs'][] = 'Update';
 
         <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-        <?= $form->field($model, 'is_correct')->checkbox() ?>
+        <?= $form->field($model, 'is_correct',['enableAjaxValidation' => true])->checkbox() ?>
 
 
     <div class="form-group">

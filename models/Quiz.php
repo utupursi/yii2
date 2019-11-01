@@ -81,18 +81,17 @@ class Quiz extends \yii\db\ActiveRecord
             [['min_correct',], 'integer', 'min' => 0, 'max' => 20],
             [['max_question'], 'integer', 'min' => 1, 'max' => 20],
             ['max_question', 'compare', 'operator' => '>=', 'compareAttribute' => 'min_correct'],
-            ['max_question', 'count'],
+            ['max_question', 'checkMaxQuestionCount'],
         ];
     }
 
-    public function count($attribute, $params)
+    public function checkMaxQuestionCount($attribute)
     {
         $questionsCount = Question::find()->where(['quiz_id' => $this->id])->count();
 
         if ($this->max_question < $questionsCount) {
             $this->addError($attribute, 'Maximal number questions can not be less than current number of questions');
         }
-
     }
 
 
@@ -190,15 +189,15 @@ class Quiz extends \yii\db\ActiveRecord
 
     public function errorOfQuiz($id)
     {
-        $ques = Question::find()->where(['quiz_id' => $id])->all();
+        $questions = Question::find()->where(['quiz_id' => $id])->all();
         $this->masivi = [];
 
-        foreach ($ques as $qu) {
-            $this->masivi[] = $qu['id'];;
+        foreach ($questions as $question) {
+            $this->masivi[] = $question['id'];;
         }
 
 
-        if ($ques == []) {
+        if ($questions == []) {
             $this->searchModel = new QuizSearch();
             $this->dataProvider = $this->searchModel->search(Yii::$app->request->queryParams);
             return true;
@@ -215,23 +214,79 @@ class Quiz extends \yii\db\ActiveRecord
             $array[] = $ans['question_id'];
 
         }
-        $arrayOfQuestionId = array_unique($array);
+        $arrayOfQuestionId = $array;
 
-        foreach ($arrayOfQuestionId as $arr) {
-            if (in_array($arr, $this->masivi)) {
-                $ansArray[] = $arr;
+        $i = 1;
+        if ($arrayOfQuestionId != []) {
+            foreach ($arrayOfQuestionId as $arr) {
+                if ($i < count($arrayOfQuestionId) && $arrayOfQuestionId[$i] == $arr) {
+                    $ansArray[] = $arr;
+                }
+                $i++;
             }
         }
+
 
         if (isset($ansArray) == false) {
             $ansArray = [];
         }
+        $ansArray = array_unique($ansArray);
 
         if (count($ansArray) != count($this->masivi)) {
             $this->searchModel = new QuizSearch();
             $this->dataProvider = $this->searchModel->search(Yii::$app->request->queryParams);
             return true;
         }
+    }
+
+    public function errorOfCorrectAnswers()
+    {
+        $answer = Answer::find()->where(['question_id' => $this->masivi])->asArray()->orderBy('question_id')->all();
+        $count = 0;
+
+        $ansIsCorrect = [];
+        $ansQuestionId = [];
+
+
+        foreach ($answer as $ans) {
+            $an = (int)$ans['question_id'];
+
+            $ansQuestionId[] = $an;
+
+        }
+        $i = 1;
+        $answer[count($answer)] = 0;
+
+        $ansQuestionId[count($ansQuestionId)] = 0;
+
+        foreach ($answer as $ans) {
+
+            $ansIsCorrect[] = $ans['is_correct'];
+            if ($i < count($answer)) {
+
+                if ($ansQuestionId[$i] != $ansQuestionId[$i - 1]) {
+
+                    $ansIsCorrect = array_unique($ansIsCorrect);
+
+
+                    if (!in_array('1', $ansIsCorrect)) {
+                        $count++;
+
+                    }
+                    $ansIsCorrect = [];
+                }
+
+            }
+            $i++;
+        }
+
+
+        if ($count > 0) {
+            $this->searchModel = new QuizSearch();
+            $this->dataProvider = $this->searchModel->search(Yii::$app->request->queryParams);
+            return true;
+        }
+
     }
 
     public function dropDownListItem()

@@ -16,8 +16,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'min_correct')->textInput() ?>
 
-    <?= $form->field($model, 'max_question')->textInput() ?>
-
+    <?= $form->field($model, 'max_question', ['enableAjaxValidation' => true])->textInput() ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

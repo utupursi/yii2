@@ -53,19 +53,23 @@ class QuizSearch extends Quiz
 
         $this->load($params);
         if ($this->created_at) {
+            echo $this->created_at;
             $createStart = strtotime($this->created_at);
+            echo $createStart;
+            exit;
             $createEnd = $createStart + 86400;
+
             $query->andFilterWhere([
-                'between', 'created_at', $createStart, $createEnd
+                'created_at' => $createEnd,
             ]);
         }
-        if ($this->updated_at) {
-            $createStart = strtotime($this->updated_at);
-            $createEnd = $createStart + 86400;
-            $query->andFilterWhere([
-                'between', 'updated_at', $createStart, $createEnd
-            ]);
-        }
+//        if ($this->updated_at) {
+//            $createStart = strtotime($this->updated_at);
+//            $createEnd = $createStart + 86400;
+//            $query->andFilterWhere([
+//                'between', 'updated_at', $createStart, $createEnd
+//            ]);
+//        }
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
@@ -78,6 +82,9 @@ class QuizSearch extends Quiz
         $query->andFilterWhere([
             'id' => $this->id,
             'min_correct' => $this->min_correct,
+
+
+            'updated_at' => $this->updated_at,
             'max_question' => $this->max_question,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
