@@ -62,13 +62,20 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filter' => DatePicker::widget([
                     'model' => $searchModel,
                     'attribute' => 'created_at',
-
+                    'clientOptions' => [
+                        'format' => 'yyyy-m-dd',
+                        'todayHighlight' => true
+                    ]
                 ]),
             ],
 
             ['filter' => DatePicker::widget([
                 'model' => $searchModel,
                 'attribute' => 'updated_at',
+                'clientOptions' => [
+                    'format' => 'yyyy-m-dd',
+                    'todayHighlight' => true
+                ]
             ]),
 
                 'label' => 'Updated At',

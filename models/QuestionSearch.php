@@ -25,7 +25,7 @@ class QuestionSearch extends Question
         return [
             [['id', 'quiz_id', 'max_ans', 'created_at', 'updated_at'], 'integer'],
             [['name', 'hint'], 'safe'],
-            [['created_at', 'updated_at'],'safe'],
+            [['created_at', 'updated_at'], 'safe'],
         ];
     }
 
@@ -58,17 +58,15 @@ class QuestionSearch extends Question
         $this->load($params);
 
         if ($this->created_at) {
-            $createStart = strtotime($this->created_at);
-            $createEnd = $createStart + 86400;
+
             $query->andFilterWhere([
-                'between', 'created_at', $createStart, $createEnd
+                'FROM_UNIXTIME (created_at, "%Y-%m-%d")' => $this->created_at
             ]);
+
         }
         if ($this->updated_at) {
-            $createStart = strtotime($this->updated_at);
-            $createEnd = $createStart + 86400;
             $query->andFilterWhere([
-                'between', 'updated_at', $createStart, $createEnd
+                'FROM_UNIXTIME (updated_at, "%Y-%m-%d")' => $this->updated_at
             ]);
         }
 
