@@ -2,10 +2,11 @@
 
 namespace app\models;
 
+use app\models\Quiz;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Quiz;
+use yii\widgets\Pjax;
 
 
 /**
@@ -53,23 +54,17 @@ class QuizSearch extends Quiz
 
         $this->load($params);
         if ($this->created_at) {
-            echo $this->created_at;
-            $createStart = strtotime($this->created_at);
-            echo $createStart;
-            exit;
-            $createEnd = $createStart + 86400;
 
             $query->andFilterWhere([
-                'created_at' => $createEnd,
+                'FROM_UNIXTIME (created_at, "%Y-%m-%d")' => $this->created_at
+            ]);
+
+        }
+        if ($this->updated_at) {
+            $query->andFilterWhere([
+                'FROM_UNIXTIME (updated_at, "%Y-%m-%d")' => $this->updated_at
             ]);
         }
-//        if ($this->updated_at) {
-//            $createStart = strtotime($this->updated_at);
-//            $createEnd = $createStart + 86400;
-//            $query->andFilterWhere([
-//                'between', 'updated_at', $createStart, $createEnd
-//            ]);
-//        }
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
@@ -78,12 +73,10 @@ class QuizSearch extends Quiz
         }
 
 
-        // grid filtering conditions
+// grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
             'min_correct' => $this->min_correct,
-
-
             'updated_at' => $this->updated_at,
             'max_question' => $this->max_question,
             'created_by' => $this->created_by,

@@ -88,11 +88,7 @@ class Answer extends \yii\db\ActiveRecord
 
     public function countCorrectAnswers($attribute)
     {
-
-
         $answers = Answer::find()->where(['question_id' => $this->question_id])->all();
-
-
         $count = 0;
         if ($this->is_correct == 1) {
 
@@ -103,26 +99,31 @@ class Answer extends \yii\db\ActiveRecord
                     $this->addError($attribute, 'Correct answer is already exist');
                 }
             }
-
         }
-
-
     }
 
     public function countIncorrectAnswers($attribute)
     {
         $questions = Question::findOne(['id' => $this->question_id]);
+        $answerCount = Answer::find()->where(['question_id' => $this->question_id])->count();
+        $searchCorrectAnswer = Answer::find()->where(['question_id' => $this->question_id, 'is_correct' => false])->count();
 
-        $answersCount = Answer::find()->where(['question_id' => $this->question_id])->count();
-
-        $searchCorrectAnswer = Answer::find()->where(['question_id' => $this->question_id, 'is_correct' => true])->count();
-
-        if ($this->is_correct == 0 && $searchCorrectAnswer == 0 && $answersCount == $questions->max_ans - 1) {
+        if ($this->is_correct == 0 && $searchCorrectAnswer == 0 && $answerCount == $questions->max_ans - 1) {
             $this->addError($attribute, 'Can not be without correct answer');
         }
 
     }
 
+    public function errorCountNumberOfAnswers($model, $questionId)
+    {
+        $count = Answer::find()->where(['question_id' => $questionId])->count();
+        $question = Question::findOne($questionId);
+
+        if (($question->max_ans) > $count) {
+            return false;
+
+        }
+    }
 
     public function getQuestion()
     {

@@ -78,12 +78,31 @@ class Quiz extends \yii\db\ActiveRecord
             [['subject'], 'string', 'max' => 255],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
             [['subject', 'min_correct', 'max_question', 'certificate_valid_time'], 'required'],
-            [['min_correct',], 'integer', 'min' => 0, 'max' => 20],
-            [['max_question'], 'integer', 'min' => 1, 'max' => 20],
+            [['min_correct', 'max_question'], 'integer', 'min' => 1, 'max' => 20],
+            ['max_question', 'leadingZeroValidateOfMaxQuestion'],
+            ['min_correct', 'leadingZeroValidateOfMinCorrect'],
             ['max_question', 'compare', 'operator' => '>=', 'compareAttribute' => 'min_correct'],
             ['max_question', 'checkMaxQuestionCount'],
+
         ];
     }
+
+    public function leadingZeroValidateOfMaxQuestion($attribute)
+    {
+        $arrayOfMaxQuestion = array_map('intval', str_split($this->max_question));
+        if ($arrayOfMaxQuestion[0] == 0 && count($arrayOfMaxQuestion) > 1) {
+            $this->addError($attribute, 'Minimal correct should no have leading zeros');
+        }
+    }
+
+    public function leadingZeroValidateOfMinCorrect($attribute)
+    {
+        $arrayOfMinCorrect = array_map('intval', str_split($this->min_correct));
+        if ($arrayOfMinCorrect[0] == 0 && count($arrayOfMinCorrect) > 1) {
+            $this->addError($attribute, 'Minimal correct should not have leading zeros');
+        }
+    }
+
 
     public function checkMaxQuestionCount($attribute)
     {
@@ -148,15 +167,10 @@ class Quiz extends \yii\db\ActiveRecord
             }
         }
 
-        $answers = Answer::find()
+        $this->count = Answer::find()
             ->andWhere(['id' => $answerIds])
-            ->all();
-
-        foreach ($answers as $answer) {
-            if ($answer->is_correct) {
-                $this->count++;
-            }
-        }
+            ->andWhere(['is_correct' => true])
+            ->count();
 
         $this->error = $this->count < $this->quiz->min_correct ? 'You have  not  passed quiz' : '';
         $this->success = $this->count < $this->quiz->min_correct ? '' : 'You have successfully passed quiz';
@@ -193,9 +207,8 @@ class Quiz extends \yii\db\ActiveRecord
         $this->masivi = [];
 
         foreach ($questions as $question) {
-            $this->masivi[] = $question['id'];;
+            $this->masivi[] = $question['id'];
         }
-
 
         if ($questions == []) {
             $this->searchModel = new QuizSearch();
@@ -207,25 +220,14 @@ class Quiz extends \yii\db\ActiveRecord
     public function errorOfAnswers()
     {
         $answer = Answer::find()->where(['question_id' => $this->masivi])->asArray()->all();
-        $i = 0;
-        $g = 0;
-        $array = [];
-        foreach ($answer as $ans) {
-            $array[] = $ans['question_id'];
-
-        }
-        $arrayOfQuestionId = $array;
-
         $i = 1;
-        if ($arrayOfQuestionId != []) {
-            foreach ($arrayOfQuestionId as $arr) {
-                if ($i < count($arrayOfQuestionId) && $arrayOfQuestionId[$i] == $arr) {
-                    $ansArray[] = $arr;
-                }
-                $i++;
-            }
-        }
 
+        foreach ($answer as $ans) {
+            if ($i < count($answer) && $answer[$i]['question_id'] == $answer[$i - 1]['question_id']) {
+                $ansArray[] = $answer[$i - 1]['question_id'];
+            }
+            $i++;
+        }
 
         if (isset($ansArray) == false) {
             $ansArray = [];
@@ -246,32 +248,18 @@ class Quiz extends \yii\db\ActiveRecord
 
         $ansIsCorrect = [];
         $ansQuestionId = [];
-
-
-        foreach ($answer as $ans) {
-            $an = (int)$ans['question_id'];
-
-            $ansQuestionId[] = $an;
-
-        }
         $i = 1;
         $answer[count($answer)] = 0;
-
-        $ansQuestionId[count($ansQuestionId)] = 0;
-
         foreach ($answer as $ans) {
-
             $ansIsCorrect[] = $ans['is_correct'];
             if ($i < count($answer)) {
 
-                if ($ansQuestionId[$i] != $ansQuestionId[$i - 1]) {
-
+                if ($answer[$i]['question_id'] != $answer[$i - 1]['question_id']) {
                     $ansIsCorrect = array_unique($ansIsCorrect);
-
 
                     if (!in_array('1', $ansIsCorrect)) {
                         $count++;
-
+                        break;
                     }
                     $ansIsCorrect = [];
                 }
@@ -279,7 +267,6 @@ class Quiz extends \yii\db\ActiveRecord
             }
             $i++;
         }
-
 
         if ($count > 0) {
             $this->searchModel = new QuizSearch();

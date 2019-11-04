@@ -63,8 +63,9 @@ class Question extends \yii\db\ActiveRecord
             [['quiz_id'], 'exist', 'skipOnError' => true, 'targetClass' => Quiz::className(), 'targetAttribute' => ['quiz_id' => 'id']],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
             [['name', 'max_ans'], 'required'],
-            [['max_ans'], 'integer', 'min' => 1,'max'=>20],
-            ['max_ans','countNumberOfAnswer'],
+            [['max_ans'], 'integer', 'min' => 1, 'max' => 20],
+            ['max_ans', 'countNumberOfAnswer'],
+            ['max_ans', 'leadingZeroValidate'],
 
         ];
     }
@@ -79,7 +80,7 @@ class Question extends \yii\db\ActiveRecord
             'quiz_id' => 'Insert Subject',
             'name' => 'Name',
             'hint' => 'Hint',
-            'max_ans' => 'Max Ans',
+            'max_ans' => 'Max Answer',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
             'created_by' => 'Created By',
@@ -87,13 +88,22 @@ class Question extends \yii\db\ActiveRecord
         ];
     }
 
-    public function countNumberOfAnswer($attribute){
+    public function countNumberOfAnswer($attribute)
+    {
         $answersCount = Answer::find()->where(['question_id' => $this->id])->count();
 
-        if ($this->max_ans<$answersCount) {
+        if ($this->max_ans < $answersCount) {
             $this->addError($attribute, 'Maximal number of answers can not be less than current number of answers');
         }
 
+    }
+
+    public function leadingZeroValidate($attribute)
+    {
+        $arrayOfMaxAns = array_map('intval', str_split($this->max_ans));
+        if ($arrayOfMaxAns[0] == 0 && count($arrayOfMaxAns) > 1) {
+            $this->addError($attribute, 'Max answer should not have leading zeros');
+        }
     }
 
     public function countQuestion($model)

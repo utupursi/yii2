@@ -19,9 +19,9 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'subject')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'min_correct')->textInput() ?>
+    <?= $form->field($model, 'min_correct', ['enableAjaxValidation' => true])->textInput() ?>
 
-    <?= $form->field($model, 'max_question')->textInput() ?>
+    <?= $form->field($model, 'max_question',['enableAjaxValidation' => true])->textInput() ?>
 
     <?= $form->field($model, 'certificate_valid_time')->dropDownList(['prompt' => 'Select', 'months' => $items]) ?>
 

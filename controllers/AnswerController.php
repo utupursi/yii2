@@ -97,12 +97,10 @@ class AnswerController extends Controller
         }
 
         if ($model->load(Yii::$app->request->post())) {
-            $count = Answer::find()->where(['question_id' => $model->question_id])->count();
-            $question = Question::findOne($model->question_id);
 
-            if (($question->max_ans) > $count) {
-
+            if ($model->errorCountNumberOfAnswers($model, $questionId) === false) {
                 if ($model->save()) {
+
                     return $this->redirect(['question/view', 'id' => $model->question_id]);
                 } else {
                     $error = 'Can not save data';
@@ -113,13 +111,12 @@ class AnswerController extends Controller
                 }
             }
         }
+
         $error = Yii::$app->request->isPost ? 'Number of answers more than limited number' : '';
 
-        return $this->render('create', [
-            'model' => $model,
+        return $this->render('create', ['model' => $model,
             'error' => $error,
-            'questionId' => $questionId
-        ]);
+            'questionId' => $questionId]);
     }
 
     /**
@@ -129,7 +126,8 @@ class AnswerController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id)
+    public
+    function actionUpdate($id)
     {
         $model = $this->findModel($id);
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -155,7 +153,8 @@ class AnswerController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id)
+    public
+    function actionDelete($id)
     {
         $model = $this->findModel($id);
         $this->findModel($id)->delete();
@@ -170,7 +169,8 @@ class AnswerController extends Controller
      * @return Answer the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    protected
+    function findModel($id)
     {
         if (($model = Answer::findOne($id)) !== null) {
             return $model;

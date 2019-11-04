@@ -28,7 +28,7 @@ use yii\helpers\ArrayHelper;
 
     <?= $form->field($model, 'quiz_id')
         ->dropDownList(
-            ArrayHelper::map(Quiz::find()->where(['id'=>$quizId])->all(), 'id', 'subject')
+            ArrayHelper::map(Quiz::find()->where(['id' => $quizId])->all(), 'id', 'subject')
         )
     ?>
 
@@ -36,7 +36,7 @@ use yii\helpers\ArrayHelper;
 
     <?= $form->field($model, 'hint')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'max_ans')->textInput() ?>
+    <?= $form->field($model, 'max_ans', ['enableAjaxValidation' => true])->textInput() ?>
 
 
     <div class="form-group">

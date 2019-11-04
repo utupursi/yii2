@@ -12,6 +12,7 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\Response;
 use yii\widgets\ActiveForm;
 
 /**
@@ -89,6 +90,12 @@ class QuestionController extends Controller
     public function actionCreate($quizId)
     {
         $model = new Question();
+
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+
         if ($model->load(Yii::$app->request->post())) {
 
             if ($model->countQuestion($model) === true) {

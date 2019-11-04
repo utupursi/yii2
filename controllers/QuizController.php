@@ -71,9 +71,11 @@ class QuizController extends Controller
     {
         $quiz = new Quiz();
 
+
         if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
             $quiz->countCorrectAnswers($post, $id);
+
             if ($quiz->errorOfChoose() === true) {
                 $errorOfChoose = 'You should answer to all questions';
                 return $this->render('quiz_template', [
@@ -118,7 +120,7 @@ class QuizController extends Controller
             ]);
 
         }
-        if ($quiz->errorOfCorrectAnswers()===true) {
+        if ($quiz->errorOfCorrectAnswers() === true) {
             $errorOfCorrectAnswers = 'Some Answers does not have correct answers';
             return $this->render('start_quiz', [
                 'searchModel' => $quiz->searchModel,
@@ -189,6 +191,10 @@ class QuizController extends Controller
     public function actionCreate()
     {
         $model = new Quiz();
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = 'json';
+            return ActiveForm::validate($model);
+        }
 
         if ($model->load(Yii::$app->request->post()) && $model->save() && $model->min_correct <= $model->max_question) {
 
