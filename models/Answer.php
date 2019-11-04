@@ -106,7 +106,7 @@ class Answer extends \yii\db\ActiveRecord
     {
         $questions = Question::findOne(['id' => $this->question_id]);
         $answerCount = Answer::find()->where(['question_id' => $this->question_id])->count();
-        $searchCorrectAnswer = Answer::find()->where(['question_id' => $this->question_id, 'is_correct' => false])->count();
+        $searchCorrectAnswer = Answer::find()->where(['question_id' => $this->question_id, 'is_correct' => true])->count();
 
         if ($this->is_correct == 0 && $searchCorrectAnswer == 0 && $answerCount == $questions->max_ans - 1) {
             $this->addError($attribute, 'Can not be without correct answer');
