@@ -9,7 +9,7 @@ use dosamigos\datepicker\DatePicker;
 /* @var $model app\models\Quiz */
 
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Quizzes', 'url' => ['quiz/index']];
+$this->params['breadcrumbs'][] = ['label' => 'Questions', 'url' => ['quiz/view', 'id' => $model->quiz_id]];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>

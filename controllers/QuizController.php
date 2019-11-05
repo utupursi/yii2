@@ -71,7 +71,6 @@ class QuizController extends Controller
     {
         $quiz = new Quiz();
 
-
         if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
             $quiz->countCorrectAnswers($post, $id);
@@ -84,7 +83,6 @@ class QuizController extends Controller
                     'errorOfChoose' => $errorOfChoose,
                 ]);
             }
-
 
             if ($quiz->insertData() === false) {
                 $errorOfInsert = 'Can not save data';
@@ -121,13 +119,21 @@ class QuizController extends Controller
 
         }
         if ($quiz->errorOfCorrectAnswers() === true) {
-            $errorOfCorrectAnswers = 'Some Answers does not have correct answers';
+            $errorOfCorrectAnswers = 'Some questions does not have correct answers';
             return $this->render('start_quiz', [
                 'searchModel' => $quiz->searchModel,
                 'dataProvider' => $quiz->dataProvider,
                 'errorOfCorrectAnswers' => $errorOfCorrectAnswers,
             ]);
 
+        }
+        if ($quiz->errorNumberOfQuestion($id) === true) {
+            $errorNumberOfQuestion = 'Number of questions less than minimal correct answers ';
+            return $this->render('start_quiz', [
+                'searchModel' => $quiz->searchModel,
+                'dataProvider' => $quiz->dataProvider,
+                'errorOfCorrectAnswers' => $errorNumberOfQuestion,
+            ]);
         } else {
             return $this->render('quiz_template', [
                 'questions' => $quiz->getQuestion($id),

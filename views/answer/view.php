@@ -7,7 +7,7 @@ use yii\widgets\DetailView;
 /* @var $model app\models\Quiz */
 
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Quizzes', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Answers', 'url' => ['question/view','id'=>$model->question_id]];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>

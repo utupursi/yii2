@@ -121,7 +121,7 @@ class Quiz extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'min_correct' => 'Minimal correct questions',
+            'min_correct' => 'Minimal correct answers',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
             'max_question' => 'Maximal Question',
@@ -274,6 +274,18 @@ class Quiz extends \yii\db\ActiveRecord
             return true;
         }
 
+    }
+
+    public function errorNumberOfQuestion($id)
+    {
+        $questionsCount = Question::find()->where(['quiz_id' => $id])->count();
+        $quiz = Quiz::findOne($id);
+
+        if ($questionsCount < $quiz->min_correct) {
+            $this->searchModel = new QuizSearch();
+            $this->dataProvider = $this->searchModel->search(Yii::$app->request->queryParams);
+            return true;
+        }
     }
 
     public function dropDownListItem()

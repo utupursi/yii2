@@ -9,19 +9,22 @@ use yii\grid\GridView;
 
 
 ?>
-<?php if(isset($errorOfQuiz)):?>
-<div style="color:red;font-size: 18px"><?php echo $errorOfQuiz;?></div>
-<?php endif?>
-<?php if(isset($errorOfAnswer)):?>
-    <div style="color:red;font-size: 18px"><?php echo $errorOfAnswer;?></div>
-<?php endif?>
-<?php if(isset($errorOfCorrectAnswers)):?>
-    <div style="color:red;font-size: 18px"><?php echo $errorOfCorrectAnswers;?></div>
-<?php endif?>
+<?php if (isset($errorOfQuiz)): ?>
+    <div style="color:red;font-size: 18px"><?php echo $errorOfQuiz; ?></div>
+<?php endif ?>
+<?php if (isset($errorOfAnswer)): ?>
+    <div style="color:red;font-size: 18px"><?php echo $errorOfAnswer; ?></div>
+<?php endif ?>
+<?php if (isset($errorOfCorrectAnswers)): ?>
+    <div style="color:red;font-size: 18px"><?php echo $errorOfCorrectAnswers; ?></div>
+<?php endif ?>
+<?php if (isset($errorNumberOfQuestion)): ?>
+    <div style="color:red;font-size: 18px"><?php echo $errorNumberOfQuestion; ?></div>
+<?php endif ?>
 <?= GridView::widget([
     'dataProvider' => $dataProvider,
     'headerRowOptions' => ['style' => 'background-color:#00FF7F'],
-'options'=>['style'=>'width:800px'],
+    'options' => ['style' => 'width:800px'],
     'columns' => [
         ['class' => 'yii\grid\SerialColumn',],
         ['label' => 'Subject',
