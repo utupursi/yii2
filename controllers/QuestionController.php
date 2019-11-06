@@ -105,7 +105,6 @@ class QuestionController extends Controller
 
         $error = Yii::$app->request->isPost ? 'Number of questions more than limited number' : '';
 
-
         return $this->render('create', ['model' => $model,
             'error' => $error,
             'quizId' => $quizId,]);
