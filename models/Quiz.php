@@ -143,6 +143,7 @@ class Quiz extends \yii\db\ActiveRecord
         $this->question = Question::find()
             ->where(['quiz_id' => $id])
             ->with(['answers'])
+            ->asArray()
             ->all();
         return $this->question;
     }

@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Answer;
+use app\models\Js;
 use app\models\Question;
 use app\models\Result;
 use app\models\ResultSearch;
@@ -67,10 +68,36 @@ class QuizController extends Controller
         ]);
     }
 
+    public function actionSelected()
+    {
+        $js = new Js();
+
+        if (Yii::$app->request->isAjax) {
+            if (Yii::$app->request->isPost) {
+                $data = Yii::$app->request->post();
+                var_dump($data);
+                $selected = $js->find()->where(['question_id' => $data['question']])->all();
+                var_dump($selected);
+                if ($selected > 0) {
+
+
+                }
+            }
+
+        }
+    }
+
     public function actionQuiz($id)
     {
         $quiz = new Quiz();
-
+        $js = new Js();
+        if (Yii::$app->request->isAjax) {
+            if (Yii::$app->request->isPost) {
+                $data = Yii::$app->request->post();
+                $js->insertData($data['selected'], $data['question']);
+            }
+            return json_encode($quiz->getQuestion($id));
+        }
         if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
             $quiz->countCorrectAnswers($post, $id);
@@ -137,7 +164,7 @@ class QuizController extends Controller
         } else {
             return $this->render('quiz_template', [
                 'questions' => $quiz->getQuestion($id),
-                'quiz' => $quiz->getQuiz($id)
+                'quiz' => $quiz->getQuiz($id),
             ]);
         }
 
@@ -160,7 +187,6 @@ class QuizController extends Controller
 
         $searchModel = new QuizSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
 
         return $this->render('start_quiz', [
             'searchModel' => $searchModel,
