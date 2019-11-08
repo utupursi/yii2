@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use app\models\Answer;
-use app\models\Js;
+use app\models\Progress;
 use app\models\Question;
 use app\models\Result;
 use app\models\ResultSearch;
@@ -14,6 +14,7 @@ use app\models\QuizSearch;
 use app\models\QuestionSearch;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
+use yii\helpers\VarDumper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -68,36 +69,40 @@ class QuizController extends Controller
         ]);
     }
 
-    public function actionSelected()
+    public function actionPreviousselected()
     {
-        $js = new Js();
-
+        $quiz = new Quiz();
         if (Yii::$app->request->isAjax) {
             if (Yii::$app->request->isPost) {
                 $data = Yii::$app->request->post();
-                var_dump($data);
-                $selected = $js->find()->where(['question_id' => $data['question']])->all();
-                var_dump($selected);
-                if ($selected > 0) {
-
-
-                }
+                return $quiz->previousAjax($data);
             }
 
         }
     }
 
-    public function actionQuiz($id)
+    public function actionNextselected()
     {
+
         $quiz = new Quiz();
-        $js = new Js();
         if (Yii::$app->request->isAjax) {
             if (Yii::$app->request->isPost) {
                 $data = Yii::$app->request->post();
-                $js->insertData($data['selected'], $data['question']);
+                return $quiz->nextAjax($data);
             }
+        }
+
+    }
+
+    public function actionQuiz($id)
+    {
+        $quiz = new Quiz();
+        $js = new Progress();
+
+        if (Yii::$app->request->isAjax) {
             return json_encode($quiz->getQuestion($id));
         }
+
         if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
             $quiz->countCorrectAnswers($post, $id);

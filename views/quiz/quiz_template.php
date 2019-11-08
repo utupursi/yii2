@@ -19,9 +19,8 @@ use yii\widgets\ActiveForm;
 <!--<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>-->
 <!--<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>-->
 <!--<Include the above in your HEAD tag >-->
-<?php $final1 = json_encode($questions);
-file_put_contents('js/json.json', $final1);
-?>
+
+
 
 <input value="<?php echo $questions[0]['quiz_id'] ?>" id="2" hidden ?>
 <div class="container-fluid">

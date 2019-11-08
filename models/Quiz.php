@@ -301,6 +301,66 @@ class Quiz extends \yii\db\ActiveRecord
         return $items;
     }
 
+    public function previousAjax($data)
+    {
+        $progress = new Progress();
+
+        $count = $progress->find()->where(['question_id' => $data['question']])->count();
+
+        if ($count > 0) {
+            $progress->deleteALL(['question_id' => $data['question']]);
+        }
+        if ($data['selected'] != '') {
+            $answers = Answer::find()->where(['name' => $data['selected']])->one();
+            $isCorrect = $answers->is_correct == 1 ? 1 : 0;
+        } else {
+            $isCorrect = '';
+        }
+
+        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect);
+
+        $array = [];
+        foreach ($data['previousAnswers'] as $answer) {
+            $array[] = $answer['name'];
+        }
+
+        $name = $progress->find()->where(['selected_answer' => $array])->count();
+        if ($name > 0) {
+            return json_encode($progress->find()->where(['selected_answer' => $array])->asArray()->one());
+
+        }
+    }
+
+    public function nextAjax($data)
+    {
+        $progress = new Progress();
+        $count = $progress->find()->where(['question_id' => $data['question']])->count();
+        if ($count > 0) {
+            $progress->deleteALL(['question_id' => $data['question']]);
+        }
+
+        $array = [];
+        foreach ($data['nextAnswers'] as $answer) {
+            $array[] = $answer['name'];
+        }
+
+        if ($data['selected'] != '') {
+            $answers = Answer::find()->where(['name' => $data['selected']])->one();
+            $isCorrect = $answers->is_correct == 1 ? 1 : 0;
+        } else {
+            $isCorrect = '';
+        }
+
+        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect);
+
+        $name = $progress->find()->where(['selected_answer' => $array])->count();
+
+        if ($name > 0) {
+            return json_encode($progress->find()->where(['selected_answer' => $array])->asArray()->one());
+
+        }
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
