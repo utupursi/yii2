@@ -317,7 +317,7 @@ class Quiz extends \yii\db\ActiveRecord
             $isCorrect = '';
         }
 
-        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect);
+        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect,$data['currentQuestion']);
 
         $array = [];
         foreach ($data['previousAnswers'] as $answer) {
@@ -351,7 +351,7 @@ class Quiz extends \yii\db\ActiveRecord
             $isCorrect = '';
         }
 
-        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect);
+        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect,$data['currentQuestion']);
 
         $name = $progress->find()->where(['selected_answer' => $array])->count();
 

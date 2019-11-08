@@ -69,6 +69,16 @@ class QuizController extends Controller
         ]);
     }
 
+    public function actionRatatu()
+    {
+        $progress = new Progress();
+        if (Yii::$app->request->isAjax) {
+            return json_encode($progress->find()->orderBy(['id' => SORT_DESC])->asArray()->one());
+
+
+        }
+    }
+
     public function actionPreviousselected()
     {
         $quiz = new Quiz();
@@ -97,10 +107,24 @@ class QuizController extends Controller
     public function actionQuiz($id)
     {
         $quiz = new Quiz();
-        $js = new Progress();
+        $progress = new Progress();
 
         if (Yii::$app->request->isAjax) {
-            return json_encode($quiz->getQuestion($id));
+            if (Yii::$app->request->isPost) {
+                $data = Yii::$app->request->post();
+                $array = [];
+                foreach ($data['answers'] as $answer) {
+                    $array[] = $answer['name'];
+                }
+                $name = $progress->find()->where(['selected_answer' => $array])->count();
+                if ($name > 0) {
+                    return json_encode($progress->find()->where(['selected_answer' => $array])->asArray()->one());
+                }
+            }
+            $arr = [];
+            $arr[0] = $quiz->getQuestion($id);
+            $arr[1] = $progress->find()->orderBy(['id' => SORT_DESC])->where(['quiz_id' => $id])->asArray()->one();
+            return json_encode($arr);
         }
 
         if (Yii::$app->request->isPost) {

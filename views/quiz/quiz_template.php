@@ -21,7 +21,6 @@ use yii\widgets\ActiveForm;
 <!--<Include the above in your HEAD tag >-->
 
 
-
 <input value="<?php echo $questions[0]['quiz_id'] ?>" id="2" hidden ?>
 <div class="container-fluid">
     <div class="modal-dialog">
@@ -66,9 +65,8 @@ use yii\widgets\ActiveForm;
                 </div>
 
 
-                <div style="padding: 0 15px 15px 0" class="pull-right">
-                    <button id="PreviousButton" type="button" class="btn btn-success">Previous</button>
-                    <button id="nextButton" type="button" class="btn btn-success">Next</button>
+                <div style="padding: 0 15px 15px 0" class="pull-right" id="container">
+                    <button id="nextButton" type="button" class="btn btn-success" hidden="hidden">Next</button>
                     <!--                        --><?php //= Html::submitButton('Submit!', ['class' => 'btn btn-primary','id'=>nextButton''],) ?>
 
                 </div>

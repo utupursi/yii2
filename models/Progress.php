@@ -13,6 +13,7 @@ use Yii;
  * @property int $is_correct
  * @property int $quiz_id
  * @property int $passed_by
+ * @property int $current_question
  *
  * @property User $passedBy
  */
@@ -32,7 +33,7 @@ class Progress extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['question_id', 'is_correct', 'quiz_id', 'passed_by'], 'integer'],
+            [['question_id', 'is_correct', 'quiz_id', 'passed_by', 'current_question'], 'integer'],
             [['selected_answer'], 'string', 'max' => 255],
             [['passed_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['passed_by' => 'id']],
         ];
@@ -50,20 +51,21 @@ class Progress extends \yii\db\ActiveRecord
             'is_correct' => 'Is Correct',
             'quiz_id' => 'Quiz ID',
             'passed_by' => 'Passed By',
+            'current_question' => 'Current Question',
         ];
     }
 
-    public function insertData($selected, $questionId, $quizId, $isCorrect)
+    public function insertData($selected, $questionId, $quizId, $isCorrect, $currentQuestion)
     {
         $progress = new Progress();
         $progress->selected_answer = $selected;
         $progress->question_id = $questionId;
         $progress->quiz_id = $quizId;
         $progress->is_correct = $isCorrect;
+        $progress->current_question = $currentQuestion;
         $progress->save();
 
     }
-
 
     /**
      * @return \yii\db\ActiveQuery
