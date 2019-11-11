@@ -148,30 +148,13 @@ class Quiz extends \yii\db\ActiveRecord
         return $this->question;
     }
 
-    public function countCorrectAnswers($getPost, $id)
+    public function countCorrectAnswers($id)
     {
+
         $this->quiz = Quiz::findOne($id);
-        $this->question = Question::find()
-            ->where(['quiz_id' => $id])
-            ->with(['answers'])
-            ->all();
+        $count = Progress::find()->andwhere(['is_correct' => true])->andWhere(['quiz_id' => $id])->count();
+        $this->count = $count;
 
-        $post = $getPost;
-        $this->count = 0;
-        $this->questionCount = 0;
-        $answerIds = [];
-
-        foreach ($post as $index => $answerId) {
-            if (strpos($index, 'selectedAnswer') !== false) {
-                $this->questionCount++;
-                $answerIds[] = $answerId;
-            }
-        }
-
-        $this->count = Answer::find()
-            ->andWhere(['id' => $answerIds])
-            ->andWhere(['is_correct' => true])
-            ->count();
 
         $this->error = $this->count < $this->quiz->min_correct ? 'You have  not  passed quiz' : '';
         $this->success = $this->count < $this->quiz->min_correct ? '' : 'You have successfully passed quiz';
@@ -183,13 +166,23 @@ class Quiz extends \yii\db\ActiveRecord
 
     }
 
-    public function errorOfChoose()
+    public function errorOfChoose($id)
     {
 
-        if ($this->questionCount != $this->questionCountFromDb) {
+        $progressCount = Progress::find()->where(['quiz_id' => $id])->count();
+        $progressData = Progress::find()->where(['quiz_id' => $id])->all();
+        $array = [];
+        $counter = 0;;
+        for ($i = 0; $i < count($progressData); $i++) {
+            if ($progressData[$i]['selected_answer'] == '') {
+                $counter++;
+            }
+            $array[] = $progressData[$i]['question_id'];
+        }
+        $count = Question::find()->where(['id' => $array])->count();
+        if ($progressCount != $count || $counter > 0) {
             return true;
         }
-
     }
 
     public function insertData()
@@ -317,7 +310,7 @@ class Quiz extends \yii\db\ActiveRecord
             $isCorrect = '';
         }
 
-        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect,$data['currentQuestion']);
+        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $data['currentQuestion'], $data['previousButton']);
 
         $array = [];
         foreach ($data['previousAnswers'] as $answer) {
@@ -350,9 +343,7 @@ class Quiz extends \yii\db\ActiveRecord
         } else {
             $isCorrect = '';
         }
-
-        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect,$data['currentQuestion']);
-
+        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $data['currentQuestion'], $data['nextButton']);
         $name = $progress->find()->where(['selected_answer' => $array])->count();
 
         if ($name > 0) {

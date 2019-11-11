@@ -69,15 +69,6 @@ class QuizController extends Controller
         ]);
     }
 
-    public function actionRatatu()
-    {
-        $progress = new Progress();
-        if (Yii::$app->request->isAjax) {
-            return json_encode($progress->find()->orderBy(['id' => SORT_DESC])->asArray()->one());
-
-
-        }
-    }
 
     public function actionPreviousselected()
     {
@@ -104,11 +95,42 @@ class QuizController extends Controller
 
     }
 
-    public function actionQuiz($id)
+    public function actionFinish()
     {
         $quiz = new Quiz();
         $progress = new Progress();
+        if (Yii::$app->request->isAjax) {
+            if (Yii::$app->request->isPost) {
+                $data = Yii::$app->request->post();
 
+                $quiz->countCorrectAnswers($data['quizId']);
+
+                if ($data['selected'] != '') {
+                    $answers = Answer::find()->where(['name' => $data['selected']])->one();
+                    $isCorrect = $answers->is_correct == 1 ? 1 : 0;
+                } else {
+                    $isCorrect = '';
+                }
+                $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $data['currentQuestion'], $data['finishButton']);
+
+
+                return $this->renderAjax('quiz_finish', [
+                    'count' => $quiz->count,
+                    'error' => $quiz->error,
+                    'success' => $quiz->success,
+                    'question_count' => $quiz->questionCountFromDb,
+                    'id' => $data['quizId'],
+                ]);
+
+            }
+        }
+    }
+
+    public
+    function actionQuiz($id)
+    {
+        $quiz = new Quiz();
+        $progress = new Progress();
         if (Yii::$app->request->isAjax) {
             if (Yii::$app->request->isPost) {
                 $data = Yii::$app->request->post();
@@ -127,36 +149,7 @@ class QuizController extends Controller
             return json_encode($arr);
         }
 
-        if (Yii::$app->request->isPost) {
-            $post = Yii::$app->request->post();
-            $quiz->countCorrectAnswers($post, $id);
 
-            if ($quiz->errorOfChoose() === true) {
-                $errorOfChoose = 'You should answer to all questions';
-                return $this->render('quiz_template', [
-                    'questions' => $quiz->question,
-                    'quiz' => $quiz->quiz,
-                    'errorOfChoose' => $errorOfChoose,
-                ]);
-            }
-
-            if ($quiz->insertData() === false) {
-                $errorOfInsert = 'Can not save data';
-                return $this->render('quiz_template', [
-                    'questions' => $quiz->question,
-                    'quiz' => $quiz->quiz,
-                    'errorOfInsert' => $errorOfInsert,
-                ]);
-            } else {
-                return $this->render('quiz_finish', [
-                    'count' => $quiz->count,
-                    'error' => $quiz->error,
-                    'success' => $quiz->success,
-                    'question_count' => $quiz->questionCount,
-                    'id' => $id,
-                ]);
-            }
-        }
         if ($quiz->errorOfQuiz($id) === true) {
             $errorOfQuiz = 'You can not pass quiz,quiz does not have questions';
             return $this->render('start_quiz', [
@@ -200,7 +193,8 @@ class QuizController extends Controller
     }
 
 
-    public function actionResult()
+    public
+    function actionResult()
     {
         $searchModel = new ResultSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -211,16 +205,23 @@ class QuizController extends Controller
         ]);
     }
 
-    public function actionStart()
+    public
+    function actionStart()
     {
 
         $searchModel = new QuizSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $progress = Progress::find()->all();
+        $array = [];
+        foreach ($progress as $progres) {
+            $array[] = $progres->quiz_id;
+        }
 
         return $this->render('start_quiz', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'errorOfQuiz' => '',
+            'arrayOfQuizId' => $array,
         ]);
     }
 
@@ -230,7 +231,8 @@ class QuizController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public
+    function actionView($id)
     {
         $searchModel = new QuestionSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $id);
@@ -249,7 +251,8 @@ class QuizController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
+    public
+    function actionCreate()
     {
         $model = new Quiz();
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -276,7 +279,8 @@ class QuizController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id)
+    public
+    function actionUpdate($id)
     {
         $model = $this->findModel($id);
 
@@ -302,7 +306,8 @@ class QuizController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id)
+    public
+    function actionDelete($id)
     {
 
         $this->findModel($id)->delete();
@@ -317,7 +322,8 @@ class QuizController extends Controller
      * @return Quiz the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    protected
+    function findModel($id)
     {
         if (($model = Quiz::findOne($id)) !== null) {
             return $model;

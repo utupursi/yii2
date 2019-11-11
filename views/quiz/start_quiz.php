@@ -37,8 +37,18 @@ use yii\grid\GridView;
         ['class' => 'yii\grid\ActionColumn',
             'template' => '{view}',
             'buttons' => [
-                'view' => function ($url) {
-                    return Html::a('<span class="btn btn-success">Start</span>', $url);
+                'view' => function ($url, $model) use ($arrayOfQuizId) {
+                    $count = 0;
+                    for ($i = 0; $i < count($arrayOfQuizId); $i++) {
+                        if ($model->id == $arrayOfQuizId[$i]) {
+                            $count++;
+                            return Html::a('<span class="btn btn-success">Resume</span>', $url);
+                        }
+                    }
+                    if ($count < 1) {
+                        return Html::a('<span class="btn btn-success">Start</span>', $url);
+                    }
+
 
                 },
 
