@@ -21,6 +21,10 @@ use yii\grid\GridView;
 <?php if (isset($errorNumberOfQuestion)): ?>
     <div style="color:red;font-size: 18px"><?php echo $errorNumberOfQuestion; ?></div>
 <?php endif ?>
+<?php if (isset($errorOfStartQuiz)): ?>
+    <div style="color:red;font-size: 18px"><?php echo $errorOfStartQuiz; ?></div>
+<?php endif ?>
+
 <?= GridView::widget([
     'dataProvider' => $dataProvider,
     'headerRowOptions' => ['style' => 'background-color:#00FF7F'],
@@ -38,7 +42,7 @@ use yii\grid\GridView;
             'template' => '{view}',
             'buttons' => [
                 'view' => function ($url, $model) use ($arrayOfQuizId) {
-               $count=0;
+                    $count = 0;
 
                     for ($i = 0; $i < count($arrayOfQuizId); $i++) {
                         if ($model->id == $arrayOfQuizId[$i]) {
@@ -48,6 +52,7 @@ use yii\grid\GridView;
                     }
                     if ($count < 1) {
                         return Html::a('<span class="btn btn-success">Start</span>', $url);
+
                     }
 
 

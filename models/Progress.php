@@ -3,6 +3,9 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "progress".
@@ -27,6 +30,7 @@ class Progress extends \yii\db\ActiveRecord
     {
         return 'progress';
     }
+
 
     /**
      * {@inheritdoc}
@@ -64,6 +68,7 @@ class Progress extends \yii\db\ActiveRecord
         $progress->quiz_id = $quizId;
         $progress->is_correct = $isCorrect;
         $progress->current_question = $currentQuestion;
+        $progress->passed_by = Yii::$app->user->identity->id;
         if ($progress->save()) {
             return true;
         } else {

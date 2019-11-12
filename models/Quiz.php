@@ -152,7 +152,9 @@ class Quiz extends \yii\db\ActiveRecord
     {
 
         $this->quiz = Quiz::findOne($id);
-        $count = Progress::find()->andwhere(['is_correct' => true])->andWhere(['quiz_id' => $id])->count();
+        $count = Progress::find()->andwhere(['is_correct' => true])->andWhere(['quiz_id' => $id])
+            ->andWhere(['passed_by' => Yii::$app->user->identity->id])
+            ->count();
         $this->count = $count;
 
 
@@ -169,8 +171,8 @@ class Quiz extends \yii\db\ActiveRecord
     public function errorOfChoose($id)
     {
 
-        $progressCount = Progress::find()->where(['quiz_id' => $id])->count();
-        $progressData = Progress::find()->where(['quiz_id' => $id])->all();
+        $progressCount = Progress::find()->where(['quiz_id' => $id])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
+        $progressData = Progress::find()->where(['quiz_id' => $id])->andWhere(['passed_by' => Yii::$app->user->identity->id])->all();
         $array = [];
         $counter = 0;;
         for ($i = 0; $i < count($progressData); $i++) {
@@ -301,7 +303,7 @@ class Quiz extends \yii\db\ActiveRecord
         $count = $progress->find()->where(['question_id' => $data['question']])->count();
 
         if ($count > 0) {
-            $progress->deleteALL(['question_id' => $data['question']]);
+            $progress->deleteALL(['question_id' => $data['question'], 'passed_by' => Yii::$app->user->identity->id]);
         }
         if ($data['selected'] != '') {
             $answers = Answer::find()->where(['id' => $data['selected']])->one();
@@ -319,19 +321,24 @@ class Quiz extends \yii\db\ActiveRecord
             $array[] = $answer['id'];
         }
 
-        $name = $progress->find()->where(['selected_answer' => $array])->count();
-        if ($name > 0) {
-            return json_encode($progress->find()->where(['selected_answer' => $array])->asArray()->one());
+        $name = $progress->find()->where(['selected_answer' => $array])
+            ->andWhere(['passed_by' => Yii::$app->user->identity->id])
+            ->count();
 
+        if ($name > 0) {
+            return json_encode($progress->find()->andwhere(['selected_answer' => $array])
+                ->andWhere(['passed_by' => Yii::$app->user->identity->id])
+                ->asArray()->one());
         }
     }
 
-    public function nextAjax($data)
+    public
+    function nextAjax($data)
     {
         $progress = new Progress();
         $count = $progress->find()->where(['question_id' => $data['question']])->count();
         if ($count > 0) {
-            $progress->deleteALL(['question_id' => $data['question']]);
+            $progress->deleteALL(['question_id' => $data['question'], 'passed_by' => Yii::$app->user->identity->id]);
         }
 
         $array = [];
@@ -349,15 +356,20 @@ class Quiz extends \yii\db\ActiveRecord
         if (!$progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion)) {
             return false;
         }
-        $name = $progress->find()->where(['selected_answer' => $array])->count();
+        $name = $progress->find()->where(['selected_answer' => $array])
+            ->andWhere(['passed_by' => Yii::$app->user->identity->id])
+            ->count();
 
         if ($name > 0) {
-            return json_encode($progress->find()->where(['selected_answer' => $array])->asArray()->one());
+            return json_encode($progress->find()->andwhere(['selected_answer' => $array])
+                ->andWhere(['passed_by' => Yii::$app->user->identity->id])
+                ->asArray()->one());
 
         }
     }
 
-    public function finishAjax($data, $id)
+    public
+    function finishAjax($data, $id)
     {
         $quiz = new Quiz();
         $progress = new Progress();
@@ -367,10 +379,10 @@ class Quiz extends \yii\db\ActiveRecord
         } else {
             $isCorrect = '';
         }
-        $count = $progress->find()->where(['question_id' => $data['question']])->count();
+        $count = $progress->find()->where(['question_id' => $data['question']])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
 
         if ($count > 0) {
-            $progress->deleteALL(['question_id' => $data['question']]);
+            $progress->deleteALL(['question_id' => $data['question'], 'passed_by' => Yii::$app->user->identity->id]);
         }
         $currentQuestion = $data['currentQuestion'];
         $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion);
@@ -383,9 +395,10 @@ class Quiz extends \yii\db\ActiveRecord
         }
     }
 
-    public function progressQuizId()
+    public
+    function progressQuizId()
     {
-        $progress = Progress::find()->all();
+        $progress = Progress::find()->where(['passed_by' => Yii::$app->user->identity->id])->all();
         $array = [];
         foreach ($progress as $progres) {
             $array[] = $progres->quiz_id;
@@ -393,10 +406,23 @@ class Quiz extends \yii\db\ActiveRecord
         return $array;
     }
 
+    public function errorOfStartQuiz($id)
+    {
+        $progress = Progress::find()->where(['passed_by' => Yii::$app->user->identity->id])->andWhere(['quiz_id' => $id])->all();
+        if ($this->progressQuizId() != [] && $progress == []) {
+            $this->searchModel = new QuizSearch();
+            $this->dataProvider = $this->searchModel->search(Yii::$app->request->queryParams);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getQuestions()
+    public
+    function getQuestions()
     {
         return $this->hasMany(Question::className(), ['quiz_id' => 'id']);
     }
@@ -404,7 +430,8 @@ class Quiz extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCreatedBy()
+    public
+    function getCreatedBy()
     {
         return $this->hasOne(User::class, ['id' => 'created_by']);
     }
@@ -413,7 +440,8 @@ class Quiz extends \yii\db\ActiveRecord
      * @return \yii\db\ActiveQuery
      */
 
-    public function getUpdatedBy()
+    public
+    function getUpdatedBy()
     {
         return $this->hasOne(User::class, ['id' => 'updated_by']);
     }
@@ -421,7 +449,8 @@ class Quiz extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getResults()
+    public
+    function getResults()
     {
         return $this->hasMany(Result::className(), ['quiz_id' => 'id']);
     }

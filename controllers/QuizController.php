@@ -122,7 +122,7 @@ class QuizController extends Controller
             }
         }
         $quiz->insertData();
-        $progress->deleteALL(['quiz_id' => $id]);
+        $progress->deleteALL(['quiz_id' => $id, 'passed_by' => Yii::$app->user->identity->id]);
         return $this->render('quiz_finish', [
             'count' => $quiz->count,
             'error' => $quiz->error,
@@ -145,17 +145,29 @@ class QuizController extends Controller
                 foreach ($data['answers'] as $answer) {
                     $array[] = $answer['id'];
                 }
-                $name = $progress->find()->where(['selected_answer' => $array])->count();
+                $name = $progress->find()->andwhere(['selected_answer' => $array])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
                 if ($name > 0) {
                     return json_encode($progress->find()->where(['selected_answer' => $array])->asArray()->one());
                 }
             }
             $arr = [];
             $arr[0] = $quiz->getQuestion($id);
-            $arr[1] = $progress->find()->orderBy(['id' => SORT_DESC])->where(['quiz_id' => $id])->asArray()->one();
+            $arr[1] = $progress->find()->orderBy(['id' => SORT_DESC])
+                ->andwhere(['quiz_id' => $id])
+                ->andWhere(['passed_by' => Yii::$app->user->identity->id])
+                ->asArray()
+                ->one();
             return json_encode($arr);
         }
-
+        if ($quiz->errorOfStartQuiz($id) === true) {
+            $errorOfStartQuiz = 'You can not start quiz until you have uncompleted quiz';
+            return $this->render('start_quiz', [
+                'searchModel' => $quiz->searchModel,
+                'dataProvider' => $quiz->dataProvider,
+                'errorOfStartQuiz' => $errorOfStartQuiz,
+                'arrayOfQuizId' => $quiz->progressQuizId(),
+            ]);
+        }
 
         if ($quiz->errorOfQuiz($id) === true) {
             $errorOfQuiz = 'You can not pass quiz,quiz does not have questions';
@@ -222,7 +234,6 @@ class QuizController extends Controller
         $quiz = new Quiz();
         $searchModel = new QuizSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
 
         return $this->render('start_quiz', [
             'searchModel' => $searchModel,
