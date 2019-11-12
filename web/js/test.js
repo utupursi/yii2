@@ -19,15 +19,7 @@ let data = $.ajax({
         data = JSON.parse(data);
         if (data[1] != null) {
             let current = parseInt(data[1].current_question);
-            if (data[1].button === 'previousButton') {
-                currentQuestion = current - 1;
-            }
-            if (data[1].button === 'nextButton') {
-                currentQuestion = current + 1;
-            }
-            if (data[1].button === 'finishButton') {
-                currentQuestion = current
-            }
+            currentQuestion = current;
         } else {
             currentQuestion = 0;
         }
@@ -86,23 +78,27 @@ function callback(data, currentQuestion) {
 
         $.ajax({
             type: "POST",
-            url: '/quiz/finish',
+            url: `/quiz/finish?id=${quiz_id}`,
             data: {
                 selected: selectedOption,
                 question: data[currentQuestion].id,
                 quizId: quiz_id,
                 currentQuestion: currentQuestion,
-                finishButton: 'finishButton'
             },
             success: function (result) {
+                console.log(result);
                 result = result != '' ? JSON.parse(result) : {};
-                if (result == 'You should answer to all questions') {
+                if (result == 'Yes') {
                     let div = document.createElement('div');
                     div.setAttribute('id', 'div');
-                    div.setAttribute('style', 'color:red');
+                    div.setAttribute('style', 'font-size:20px;color:red')
                     let con = document.getElementById('c');
+                    let ul = document.getElementById('ul');
                     div.textContent = 'You should answer to all questions';
-                    con.appendChild(div);
+                    con.insertBefore(div, ul);
+                }
+                if (result == 'No') {
+                    window.location.href = `finish?id=${quiz_id}`;
                 }
             },
             error: function (result) {
@@ -121,9 +117,9 @@ function callback(data, currentQuestion) {
             nextButton.remove();
             FinishButtonCreator();
         }
-        let remove = document.getElementById('div');
-        if (remove != null) {
-            remove.remove();
+        let div = document.getElementById('div');
+        if (div != null) {
+            div.remove();
         }
 
         let question = data[questionIndex];
@@ -145,7 +141,7 @@ function callback(data, currentQuestion) {
             input.setAttribute("name", 'option');
             input.setAttribute('class', 'classOfInput');
             input.setAttribute('id', `opt${g + 1}`)
-            input.setAttribute('value', question.answers[g].name);
+            input.setAttribute('value', question.answers[g].id);
 
             span.setAttribute('id', `opt${g + 1}`)
             questionEl.setAttribute('value', question.id)
@@ -157,7 +153,7 @@ function callback(data, currentQuestion) {
             labelChild1.appendChild(span);
 
             if (result) {
-                if (result.selected_answer === question.answers[g].name) {
+                if (result.selected_answer === question.answers[g].id) {
                     let selected = document.getElementById(`opt${g + 1}`);
                     selected.checked = true;
                 }
@@ -201,11 +197,12 @@ function callback(data, currentQuestion) {
                 nextAnswers: data[currentQuestion + 1].answers,
                 quizId: quiz_id,
                 currentQuestion: currentQuestion,
-                nextButton: 'nextButton'
             },
             success: function (result) {
-                currentQuestion++;
                 result = result != '' ? JSON.parse(result) : {};
+                if (result !== 'error of insert') {
+                    currentQuestion++;
+                }
                 loadQuestion(currentQuestion, result)
             },
             error: function (result) {
@@ -247,11 +244,12 @@ function callback(data, currentQuestion) {
                 previousAnswers: data[currentQuestion - 1].answers,
                 quizId: quiz_id,
                 currentQuestion: currentQuestion,
-                previousButton: 'previousButton'
             },
             success: function (result) {
-                currentQuestion--;
                 result = result != '' ? JSON.parse(result) : {};
+                if (result !== 'error of insert') {
+                    currentQuestion--;
+                }
                 loadQuestion(currentQuestion, result)
             },
             error: function (result) {

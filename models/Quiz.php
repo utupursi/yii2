@@ -304,17 +304,19 @@ class Quiz extends \yii\db\ActiveRecord
             $progress->deleteALL(['question_id' => $data['question']]);
         }
         if ($data['selected'] != '') {
-            $answers = Answer::find()->where(['name' => $data['selected']])->one();
+            $answers = Answer::find()->where(['id' => $data['selected']])->one();
             $isCorrect = $answers->is_correct == 1 ? 1 : 0;
         } else {
             $isCorrect = '';
         }
-
-        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $data['currentQuestion'], $data['previousButton']);
+        $currentQuestion = $data['currentQuestion'] - 1;
+        if (!$progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion)) {
+            return false;
+        }
 
         $array = [];
         foreach ($data['previousAnswers'] as $answer) {
-            $array[] = $answer['name'];
+            $array[] = $answer['id'];
         }
 
         $name = $progress->find()->where(['selected_answer' => $array])->count();
@@ -334,22 +336,61 @@ class Quiz extends \yii\db\ActiveRecord
 
         $array = [];
         foreach ($data['nextAnswers'] as $answer) {
-            $array[] = $answer['name'];
+            $array[] = $answer['id'];
         }
 
         if ($data['selected'] != '') {
-            $answers = Answer::find()->where(['name' => $data['selected']])->one();
+            $answers = Answer::find()->where(['id' => $data['selected']])->one();
             $isCorrect = $answers->is_correct == 1 ? 1 : 0;
         } else {
             $isCorrect = '';
         }
-        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $data['currentQuestion'], $data['nextButton']);
+        $currentQuestion = $data['currentQuestion'] + 1;
+        if (!$progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion)) {
+            return false;
+        }
         $name = $progress->find()->where(['selected_answer' => $array])->count();
 
         if ($name > 0) {
             return json_encode($progress->find()->where(['selected_answer' => $array])->asArray()->one());
 
         }
+    }
+
+    public function finishAjax($data, $id)
+    {
+        $quiz = new Quiz();
+        $progress = new Progress();
+        if ($data['selected'] != '') {
+            $answers = Answer::find()->where(['id' => $data['selected']])->one();
+            $isCorrect = $answers->is_correct == 1 ? 1 : 0;
+        } else {
+            $isCorrect = '';
+        }
+        $count = $progress->find()->where(['question_id' => $data['question']])->count();
+
+        if ($count > 0) {
+            $progress->deleteALL(['question_id' => $data['question']]);
+        }
+        $currentQuestion = $data['currentQuestion'];
+        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion);
+
+        if ($quiz->errorOfChoose($id) === true) {
+            return json_encode('Yes');
+        } else {
+
+            return json_encode('No');
+        }
+    }
+
+    public function progressQuizId()
+    {
+        $progress = Progress::find()->all();
+        $array = [];
+        foreach ($progress as $progres) {
+            $array[] = $progres->quiz_id;
+        }
+        return $array;
     }
 
     /**

@@ -8,15 +8,15 @@ use Yii;
  * This is the model class for table "progress".
  *
  * @property int $id
- * @property string $selected_answer
  * @property int $question_id
  * @property int $is_correct
  * @property int $quiz_id
  * @property int $passed_by
  * @property int $current_question
- * @property string $button
+ * @property int $selected_answer
  *
  * @property User $passedBy
+ * @property Answer $selectedAnswer
  */
 class Progress extends \yii\db\ActiveRecord
 {
@@ -34,9 +34,9 @@ class Progress extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['question_id', 'is_correct', 'quiz_id', 'passed_by', 'current_question'], 'integer'],
-            [['selected_answer', 'button'], 'string', 'max' => 255],
+            [['question_id', 'is_correct', 'quiz_id', 'passed_by', 'current_question', 'selected_answer'], 'integer'],
             [['passed_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['passed_by' => 'id']],
+            [['selected_answer'], 'exist', 'skipOnError' => true, 'targetClass' => Answer::className(), 'targetAttribute' => ['selected_answer' => 'id']],
         ];
     }
 
@@ -47,17 +47,16 @@ class Progress extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'selected_answer' => 'Selected Answer',
             'question_id' => 'Question ID',
             'is_correct' => 'Is Correct',
             'quiz_id' => 'Quiz ID',
             'passed_by' => 'Passed By',
             'current_question' => 'Current Question',
-            'button' => 'Button',
+            'selected_answer' => 'Selected Answer',
         ];
     }
 
-    public function insertData($selected, $questionId, $quizId, $isCorrect, $currentQuestion, $button)
+    public function insertData($selected, $questionId, $quizId, $isCorrect, $currentQuestion)
     {
         $progress = new Progress();
         $progress->selected_answer = $selected;
@@ -65,8 +64,11 @@ class Progress extends \yii\db\ActiveRecord
         $progress->quiz_id = $quizId;
         $progress->is_correct = $isCorrect;
         $progress->current_question = $currentQuestion;
-        $progress->button = $button;
-        $progress->save();
+        if ($progress->save()) {
+            return true;
+        } else {
+            return false;
+        }
 
     }
 
@@ -76,5 +78,13 @@ class Progress extends \yii\db\ActiveRecord
     public function getPassedBy()
     {
         return $this->hasOne(User::className(), ['id' => 'passed_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSelectedAnswer()
+    {
+        return $this->hasOne(Answer::className(), ['id' => 'selected_answer']);
     }
 }

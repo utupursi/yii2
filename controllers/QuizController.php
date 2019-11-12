@@ -76,7 +76,11 @@ class QuizController extends Controller
         if (Yii::$app->request->isAjax) {
             if (Yii::$app->request->isPost) {
                 $data = Yii::$app->request->post();
-                return $quiz->previousAjax($data);
+                if ($quiz->previousAjax($data) === false) {
+                    return json_encode('error of insert');
+                } else {
+                    return $quiz->previousAjax($data);
+                }
             }
 
         }
@@ -89,41 +93,44 @@ class QuizController extends Controller
         if (Yii::$app->request->isAjax) {
             if (Yii::$app->request->isPost) {
                 $data = Yii::$app->request->post();
-                return $quiz->nextAjax($data);
+                if ($quiz->nextAjax($data) === false) {
+                    return json_encode('error of insert');
+                } else {
+                    return $quiz->nextAjax($data);
+                }
+
             }
         }
 
     }
 
-    public function actionFinish()
+    public function actionFinish($id)
     {
         $quiz = new Quiz();
+        $quiz->countCorrectAnswers($id);
         $progress = new Progress();
+
         if (Yii::$app->request->isAjax) {
             if (Yii::$app->request->isPost) {
                 $data = Yii::$app->request->post();
-
-                $quiz->countCorrectAnswers($data['quizId']);
-
-                if ($data['selected'] != '') {
-                    $answers = Answer::find()->where(['name' => $data['selected']])->one();
-                    $isCorrect = $answers->is_correct == 1 ? 1 : 0;
+                if ($quiz->finishAjax($data, $id) === false) {
+                    return json_encode('error of insert');
                 } else {
-                    $isCorrect = '';
+                    return $quiz->finishAjax($data, $id);
                 }
-                $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $data['currentQuestion'], $data['finishButton']);
-
-
-                return $this->renderAjax('quiz_finish', [
-                    'count' => $quiz->count,
-                    'error' => $quiz->error,
-                    'success' => $quiz->success,
-                    'question_count' => $quiz->questionCountFromDb,
-                    'id' => $data['quizId'],
-                ]);
 
             }
         }
+        $quiz->insertData();
+        $progress->deleteALL(['quiz_id' => $id]);
+        return $this->render('quiz_finish', [
+            'count' => $quiz->count,
+            'error' => $quiz->error,
+            'success' => $quiz->success,
+            'question_count' => $quiz->questionCountFromDb,
+            'id' => $id,
+        ]);
+
     }
 
     public
@@ -136,7 +143,7 @@ class QuizController extends Controller
                 $data = Yii::$app->request->post();
                 $array = [];
                 foreach ($data['answers'] as $answer) {
-                    $array[] = $answer['name'];
+                    $array[] = $answer['id'];
                 }
                 $name = $progress->find()->where(['selected_answer' => $array])->count();
                 if ($name > 0) {
@@ -156,6 +163,7 @@ class QuizController extends Controller
                 'searchModel' => $quiz->searchModel,
                 'dataProvider' => $quiz->dataProvider,
                 'errorOfQuiz' => $errorOfQuiz,
+                'arrayOfQuizId' => $quiz->progressQuizId(),
             ]);
         }
         if ($quiz->errorOfAnswers() === true) {
@@ -163,7 +171,8 @@ class QuizController extends Controller
             return $this->render('start_quiz', [
                 'searchModel' => $quiz->searchModel,
                 'dataProvider' => $quiz->dataProvider,
-                'errorOfAnswer' => $errorOfAnswer
+                'errorOfAnswer' => $errorOfAnswer,
+                'arrayOfQuizId' => $quiz->progressQuizId(),
             ]);
 
         }
@@ -173,6 +182,7 @@ class QuizController extends Controller
                 'searchModel' => $quiz->searchModel,
                 'dataProvider' => $quiz->dataProvider,
                 'errorOfCorrectAnswers' => $errorOfCorrectAnswers,
+                'arrayOfQuizId' => $quiz->progressQuizId(),
             ]);
 
         }
@@ -182,6 +192,7 @@ class QuizController extends Controller
                 'searchModel' => $quiz->searchModel,
                 'dataProvider' => $quiz->dataProvider,
                 'errorOfCorrectAnswers' => $errorNumberOfQuestion,
+                'arrayOfQuizId' => $quiz->progressQuizId(),
             ]);
         } else {
             return $this->render('quiz_template', [
@@ -208,20 +219,16 @@ class QuizController extends Controller
     public
     function actionStart()
     {
-
+        $quiz = new Quiz();
         $searchModel = new QuizSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $progress = Progress::find()->all();
-        $array = [];
-        foreach ($progress as $progres) {
-            $array[] = $progres->quiz_id;
-        }
+
 
         return $this->render('start_quiz', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'errorOfQuiz' => '',
-            'arrayOfQuizId' => $array,
+            'arrayOfQuizId' => $quiz->progressQuizId(),
         ]);
     }
 

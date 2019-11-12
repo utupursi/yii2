@@ -38,7 +38,8 @@ use yii\grid\GridView;
             'template' => '{view}',
             'buttons' => [
                 'view' => function ($url, $model) use ($arrayOfQuizId) {
-                    $count = 0;
+               $count=0;
+
                     for ($i = 0; $i < count($arrayOfQuizId); $i++) {
                         if ($model->id == $arrayOfQuizId[$i]) {
                             $count++;

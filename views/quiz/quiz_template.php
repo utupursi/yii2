@@ -24,7 +24,7 @@ use yii\widgets\ActiveForm;
 <input value="<?php echo $questions[0]['quiz_id'] ?>" id="2" hidden ?>
 <div class="container-fluid">
     <div class="modal-dialog" id="c">
-        <ul>
+        <ul id="ul">
             <?php if (isset($errorOfChoose)): ?>
                 <p style="color:red;font-size:20px"><?php echo $errorOfChoose ?></p>
             <?php endif; ?>
