@@ -17,7 +17,7 @@ use yii\db\ActiveRecord;
  * @property int $passed_by
  * @property int $current_question
  * @property int $selected_answer
- *
+ * @property int $quiz_start_date
  * @property User $passedBy
  * @property Answer $selectedAnswer
  */
@@ -31,6 +31,20 @@ class Progress extends \yii\db\ActiveRecord
         return 'progress';
     }
 
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['quiz_start_date'],
+                ],
+            ],
+
+
+        ];
+    }
+
 
     /**
      * {@inheritdoc}
@@ -38,7 +52,7 @@ class Progress extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['question_id', 'is_correct', 'quiz_id', 'passed_by', 'current_question', 'selected_answer'], 'integer'],
+            [['question_id', 'is_correct', 'quiz_id', 'passed_by', 'current_question', 'selected_answer', 'quiz_start_date'], 'integer'],
             [['passed_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['passed_by' => 'id']],
             [['selected_answer'], 'exist', 'skipOnError' => true, 'targetClass' => Answer::className(), 'targetAttribute' => ['selected_answer' => 'id']],
         ];
@@ -57,6 +71,7 @@ class Progress extends \yii\db\ActiveRecord
             'passed_by' => 'Passed By',
             'current_question' => 'Current Question',
             'selected_answer' => 'Selected Answer',
+            'quiz_start_date' => 'Quiz start date'
         ];
     }
 
@@ -76,6 +91,7 @@ class Progress extends \yii\db\ActiveRecord
         }
 
     }
+
 
     /**
      * @return \yii\db\ActiveQuery

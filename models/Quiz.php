@@ -23,6 +23,8 @@ use yii\helpers\VarDumper;
  * @property int $created_by
  * @property int $updated_by
  * @property int $certificate_valid_time
+ * @property int $quiz_time
+ * @property int $quiz_start_date
  *
  * @property Question[] $questions
  * @property User $createdBy
@@ -74,7 +76,7 @@ class Quiz extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['min_correct', 'created_at', 'updated_at', 'max_question', 'created_by', 'updated_by', 'certificate_valid_time'], 'integer'],
+            [['min_correct', 'created_at', 'updated_at', 'max_question', 'created_by', 'updated_by', 'certificate_valid_time', 'quiz_time'], 'integer'],
             [['subject'], 'string', 'max' => 255],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
             [['subject', 'min_correct', 'max_question', 'certificate_valid_time'], 'required'],
@@ -128,7 +130,8 @@ class Quiz extends \yii\db\ActiveRecord
             'subject' => 'Subject',
             'created_by' => 'Created By',
             'updated_by' => 'Updated By',
-            'certificate_valid_time' => 'Certificate Valid Time(Month)'
+            'certificate_valid_time' => 'Certificate Valid Time(Month)',
+            'quiz_time' => 'Quiz time',
         ];
     }
 
@@ -152,14 +155,6 @@ class Quiz extends \yii\db\ActiveRecord
     {
 
         $this->quiz = Quiz::findOne($id);
-        $count = Progress::find()->andwhere(['is_correct' => true])->andWhere(['quiz_id' => $id])
-            ->andWhere(['passed_by' => Yii::$app->user->identity->id])
-            ->count();
-        $this->count = $count;
-
-
-        $this->error = $this->count < $this->quiz->min_correct ? 'You have  not  passed quiz' : '';
-        $this->success = $this->count < $this->quiz->min_correct ? '' : 'You have successfully passed quiz';
 
         $this->questionCountFromDb = Question::find()
             ->where(['quiz_id' => $id])
@@ -187,8 +182,16 @@ class Quiz extends \yii\db\ActiveRecord
         }
     }
 
-    public function insertData()
+    public function insertData($id)
     {
+        $this->countCorrectAnswers($id);
+        $count = Progress::find()->andwhere(['is_correct' => true])->andWhere(['quiz_id' => $id])
+            ->andWhere(['passed_by' => Yii::$app->user->identity->id])
+            ->count();
+        $this->count = $count;
+
+
+        $progress = new Progress();
         $modelResult = new Result();
 
         if (!$modelResult->insertResult($this->quiz->min_correct, $this->quiz->subject, $this->count,
@@ -300,11 +303,7 @@ class Quiz extends \yii\db\ActiveRecord
     {
         $progress = new Progress();
 
-        $count = $progress->find()->where(['question_id' => $data['question']])->count();
 
-        if ($count > 0) {
-            $progress->deleteALL(['question_id' => $data['question'], 'passed_by' => Yii::$app->user->identity->id]);
-        }
         if ($data['selected'] != '') {
             $answers = Answer::find()->where(['id' => $data['selected']])->one();
             $isCorrect = $answers->is_correct == 1 ? 1 : 0;
@@ -312,8 +311,14 @@ class Quiz extends \yii\db\ActiveRecord
             $isCorrect = '';
         }
         $currentQuestion = $data['currentQuestion'] - 1;
-        if (!$progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion)) {
-            return false;
+        $count = $progress->find()->where(['question_id' => $data['question']])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
+
+        if ($count > 0) {
+            $progress->updateALL(['question_id' => $data['question'], 'selected_answer'
+            => $data['selected'], 'quiz_id' => $data['quizId'], 'is_correct' => $isCorrect, 'current_question' => $currentQuestion],
+                ['passed_by' => Yii::$app->user->identity->id, 'question_id' => $data['question']]);
+        } else {
+            $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion);
         }
 
         $array = [];
@@ -336,10 +341,7 @@ class Quiz extends \yii\db\ActiveRecord
     function nextAjax($data)
     {
         $progress = new Progress();
-        $count = $progress->find()->where(['question_id' => $data['question']])->count();
-        if ($count > 0) {
-            $progress->deleteALL(['question_id' => $data['question'], 'passed_by' => Yii::$app->user->identity->id]);
-        }
+
 
         $array = [];
         foreach ($data['nextAnswers'] as $answer) {
@@ -353,9 +355,17 @@ class Quiz extends \yii\db\ActiveRecord
             $isCorrect = '';
         }
         $currentQuestion = $data['currentQuestion'] + 1;
-        if (!$progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion)) {
-            return false;
+
+        $count = $progress->find()->where(['question_id' => $data['question']])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
+
+        if ($count > 0) {
+            $progress->updateALL(['question_id' => $data['question'], 'selected_answer'
+            => $data['selected'], 'quiz_id' => $data['quizId'], 'is_correct' => $isCorrect, 'current_question' => $currentQuestion],
+                ['passed_by' => Yii::$app->user->identity->id, 'question_id' => $data['question']]);
+        } else {
+            $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion);
         }
+
         $name = $progress->find()->where(['selected_answer' => $array])
             ->andWhere(['passed_by' => Yii::$app->user->identity->id])
             ->count();
@@ -380,17 +390,17 @@ class Quiz extends \yii\db\ActiveRecord
             $isCorrect = '';
         }
         $count = $progress->find()->where(['question_id' => $data['question']])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
-
-        if ($count > 0) {
-            $progress->deleteALL(['question_id' => $data['question'], 'passed_by' => Yii::$app->user->identity->id]);
-        }
         $currentQuestion = $data['currentQuestion'];
-        $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion);
+        if ($count > 0) {
+            $progress->updateALL(['question_id' => $data['question'], 'selected_answer'
+            => $data['selected'], 'quiz_id' => $data['quizId'], 'is_correct' => $isCorrect, 'current_question' => $currentQuestion],
+                ['passed_by' => Yii::$app->user->identity->id, 'question_id' => $data['question']]);
+        }
+
 
         if ($quiz->errorOfChoose($id) === true) {
             return json_encode('Yes');
         } else {
-
             return json_encode('No');
         }
     }
@@ -417,6 +427,18 @@ class Quiz extends \yii\db\ActiveRecord
             return false;
         }
     }
+
+    public function getDataOfResult($name, $id)
+    {
+        $this->countCorrectAnswers($id);
+        $result = Result::find()->where(['quiz_name' => $name])->orderBy(['id' => SORT_DESC])->one();
+
+        $this->error = $result->correct_answer_count < $this->quiz->min_correct ? 'You have  not  passed quiz' : '';
+        $this->success = $result->correct_answer_count < $this->quiz->min_correct ? '' : 'You have successfully passed quiz';
+        return $result->correct_answer_count;
+
+    }
+
 
     /**
      * @return \yii\db\ActiveQuery

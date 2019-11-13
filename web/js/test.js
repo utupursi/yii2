@@ -9,6 +9,25 @@ let Container;
 let previousButton;
 let finishButton;
 
+window.onbeforeunload = function () {
+
+    $.ajax({
+        type: "POST",
+        url: '/quiz/checkquiztime',
+        async: false,
+        data: {
+            quizId: quiz_id,
+        },
+        success: function (result) {
+            console.log(result);
+        },
+        error: function (result) {
+
+        }
+    });
+    return 'success';
+}
+
 let data = $.ajax({
     url: `/quiz/quiz?id=${quiz_id}`,
     type: 'get',
@@ -23,6 +42,7 @@ let data = $.ajax({
         } else {
             currentQuestion = 0;
         }
+
         callback(data[0], currentQuestion);
     }
 
@@ -30,11 +50,11 @@ let data = $.ajax({
 
 function callback(data, currentQuestion) {
 
+
     nextButton.onclick = loadNextQuestion;
 
     function PreviousButtonCreator() {
         let preButton = document.createElement('button');
-
         preButton.setAttribute('id', 'PreviousButton');
         preButton.setAttribute('class', 'btn btn-success');
         preButton.setAttribute('type', 'button');
@@ -75,10 +95,10 @@ function callback(data, currentQuestion) {
         } else {
             selectedOption = '';
         }
-
+        let quizName = document.getElementById('quizName');
         $.ajax({
             type: "POST",
-            url: `/quiz/finish?id=${quiz_id}`,
+            url: `/quiz/finish?id=${quiz_id}&&quizName=${quizName.textContent}`,
             data: {
                 selected: selectedOption,
                 question: data[currentQuestion].id,
@@ -98,7 +118,7 @@ function callback(data, currentQuestion) {
                     con.insertBefore(div, ul);
                 }
                 if (result == 'No') {
-                    window.location.href = `finish?id=${quiz_id}`;
+                    window.location.href = `finish?id=${quiz_id}&&quizName=${quizName.textContent}`;
                 }
             },
             error: function (result) {
@@ -266,6 +286,7 @@ function callback(data, currentQuestion) {
         aync: false,
         data: {
             answers: data[currentQuestion].answers,
+            question:data[currentQuestion].id,
         },
         success: function (result) {
             result = result != '' ? JSON.parse(result) : {};

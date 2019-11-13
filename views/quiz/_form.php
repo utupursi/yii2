@@ -24,6 +24,7 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'max_question',['enableAjaxValidation' => true])->textInput() ?>
 
     <?= $form->field($model, 'certificate_valid_time')->dropDownList(['prompt' => 'Select', 'months' => $items]) ?>
+    <?= $form->field($model, 'quiz_time')->textInput() ?>
 
 
     <div class="form-group">

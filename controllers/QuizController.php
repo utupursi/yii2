@@ -69,6 +69,19 @@ class QuizController extends Controller
         ]);
     }
 
+    public function actionCheckquiztime()
+    {
+        $progress = new Progress();
+        if (Yii::$app->request->isAjax) {
+            if (Yii::$app->request->isPost) {
+                $data = Yii::$app->request->post();
+                $quiz = Quiz::find()->where(['id' => $data['quizId']])->andWhere(['quiz_time' => null])->count();
+                if ($quiz > 0) {
+                    $progress->deleteALL(['quiz_id' => $data['quizId'], 'passed_by' => Yii::$app->user->identity->id]);
+                }
+            }
+        }
+    }
 
     public function actionPreviousselected()
     {
@@ -104,27 +117,27 @@ class QuizController extends Controller
 
     }
 
-    public function actionFinish($id)
+    public function actionFinish($id, $quizName)
     {
         $quiz = new Quiz();
-        $quiz->countCorrectAnswers($id);
         $progress = new Progress();
 
         if (Yii::$app->request->isAjax) {
+            $quiz->countCorrectAnswers($id);
             if (Yii::$app->request->isPost) {
                 $data = Yii::$app->request->post();
                 if ($quiz->finishAjax($data, $id) === false) {
                     return json_encode('error of insert');
                 } else {
-                    return $quiz->finishAjax($data, $id);
+                    $quiz->insertData($id);
+                    $result = $quiz->finishAjax($data, $id);
+                    $progress->deleteALL(['quiz_id' => $id, 'passed_by' => Yii::$app->user->identity->id]);
+                    return $result;
                 }
-
             }
         }
-        $quiz->insertData();
-        $progress->deleteALL(['quiz_id' => $id, 'passed_by' => Yii::$app->user->identity->id]);
         return $this->render('quiz_finish', [
-            'count' => $quiz->count,
+            'count' => $quiz->getDataOfResult($quizName, $id),
             'error' => $quiz->error,
             'success' => $quiz->success,
             'question_count' => $quiz->questionCountFromDb,
@@ -146,8 +159,12 @@ class QuizController extends Controller
                     $array[] = $answer['id'];
                 }
                 $name = $progress->find()->andwhere(['selected_answer' => $array])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
+
+
                 if ($name > 0) {
                     return json_encode($progress->find()->where(['selected_answer' => $array])->asArray()->one());
+                } else {
+                    $progress->insertData(null, $data['question'], $id, null, 0);
                 }
             }
             $arr = [];
@@ -207,6 +224,8 @@ class QuizController extends Controller
                 'arrayOfQuizId' => $quiz->progressQuizId(),
             ]);
         } else {
+
+
             return $this->render('quiz_template', [
                 'questions' => $quiz->getQuestion($id),
                 'quiz' => $quiz->getQuiz($id),
@@ -301,7 +320,7 @@ class QuizController extends Controller
     function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
+        $quiz = new Quiz();
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ActiveForm::validate($model);
@@ -314,6 +333,7 @@ class QuizController extends Controller
 
         return $this->render('update', [
             'model' => $model,
+            'items' => $quiz->dropDownListItem(),
         ]);
     }
 

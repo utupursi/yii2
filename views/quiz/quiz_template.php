@@ -40,7 +40,7 @@ use yii\widgets\ActiveForm;
                 <div class="modal-header">
 
                     <h3>
-                        <i><?php echo $quiz->subject ?></i>
+                        <i id="quizName"><?php echo $quiz->subject ?></i>
                     </h3>
 
                 </div>
