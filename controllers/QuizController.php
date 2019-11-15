@@ -9,12 +9,10 @@ use app\models\Result;
 use app\models\ResultSearch;
 use Yii;
 use app\models\Quiz;
-use yii\data\Pagination;
 use app\models\QuizSearch;
 use app\models\QuestionSearch;
+use yii\data\Sort;
 use yii\filters\AccessControl;
-use yii\helpers\ArrayHelper;
-use yii\helpers\VarDumper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -68,6 +66,9 @@ class QuizController extends Controller
             'model' => $model,
         ]);
     }
+    public function actionLogoutquiz(){
+
+    }
 
     public function actionCheckquiztime()
     {
@@ -78,6 +79,9 @@ class QuizController extends Controller
                 $quiz = Quiz::find()->where(['id' => $data['quizId']])->andWhere(['quiz_time' => null])->count();
                 if ($quiz > 0) {
                     $progress->deleteALL(['quiz_id' => $data['quizId'], 'passed_by' => Yii::$app->user->identity->id]);
+                    return json_encode('true');
+                } else {
+                    return json_encode('false');
                 }
             }
         }
@@ -159,11 +163,10 @@ class QuizController extends Controller
                     $array[] = $answer['id'];
                 }
                 $name = $progress->find()->andwhere(['selected_answer' => $array])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
-
-
+                $count = $progress->find()->where(['question_id' => $data['question']])->count();
                 if ($name > 0) {
                     return json_encode($progress->find()->where(['selected_answer' => $array])->asArray()->one());
-                } else {
+                } else if ($count == 0) {
                     $progress->insertData(null, $data['question'], $id, null, 0);
                 }
             }
@@ -224,11 +227,31 @@ class QuizController extends Controller
                 'arrayOfQuizId' => $quiz->progressQuizId(),
             ]);
         } else {
+            $quizCount = Quiz::find()->where(['id' => $id])->andWhere(['quiz_time' => null])->count();
+            $quiz = Quiz::find()->where(['id' => $id])->andWhere(['not', ['quiz_time' => null]])->one();
+            $progress = Progress::find()->where(['quiz_id' => $id])
+                ->andWhere(['passed_by' => Yii::$app->user->identity->id])
+                ->orderBy(['id' => SORT_ASC])
+                ->one();
+            $timeLeft = '';
+            if ($quizCount == 0) {
+                echo ' ';
+                $date = strtotime(date("H:i:s", time()) . '+' . '4' . 'hour');
+                $date1 = strtotime(date(" H:i:s", $progress->quiz_start_date) . '+' . '4' . 'hour');
+                $time = ($date - $date1);
+                $times = date('H:i:s', $time);
 
+                if (date('H', strtotime($times)) < $quiz->quiz_time) {
+                    $timeLeft = $times;
+                } else {
+                    $timeLeft = '';
+                }
+            }
 
             return $this->render('quiz_template', [
                 'questions' => $quiz->getQuestion($id),
                 'quiz' => $quiz->getQuiz($id),
+                'timeLeft' => $timeLeft,
             ]);
         }
 

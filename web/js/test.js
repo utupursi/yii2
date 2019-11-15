@@ -9,25 +9,21 @@ let Container;
 let previousButton;
 let finishButton;
 
-window.onbeforeunload = function () {
-
-    $.ajax({
-        type: "POST",
-        url: '/quiz/checkquiztime',
-        async: false,
-        data: {
-            quizId: quiz_id,
-        },
-        success: function (result) {
-            console.log(result);
-        },
-        error: function (result) {
-
-        }
-    });
-    return 'success';
-}
-
+// setInterval(function () {
+//     $.ajax({
+//         type: 'get',
+//     {
+//         success: function (data) {
+//             console.log()
+//         }
+//         error: function () {
+//             console.log("error");
+//         }
+//     }
+// )
+//     ;
+// }), 1000
+// })
 let data = $.ajax({
     url: `/quiz/quiz?id=${quiz_id}`,
     type: 'get',
@@ -47,6 +43,7 @@ let data = $.ajax({
     }
 
 });
+
 
 function callback(data, currentQuestion) {
 
@@ -128,6 +125,7 @@ function callback(data, currentQuestion) {
     }
 
     function loadQuestion(questionIndex, result) {
+
         let preButton = document.getElementById('PreviousButton');
         if (preButton === null && currentQuestion > 0) {
             PreviousButtonCreator();
@@ -286,7 +284,7 @@ function callback(data, currentQuestion) {
         aync: false,
         data: {
             answers: data[currentQuestion].answers,
-            question:data[currentQuestion].id,
+            question: data[currentQuestion].id,
         },
         success: function (result) {
             result = result != '' ? JSON.parse(result) : {};

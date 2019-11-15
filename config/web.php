@@ -45,7 +45,6 @@ $config = [
         ],
         'formatter' => [
             'class' => 'yii\i18n\Formatter',
-            'timeZone' => 'UTC',
         ],
         'db' => $db,
 

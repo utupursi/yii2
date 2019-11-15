@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use dosamigos\datepicker\DatePicker;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Quiz */
@@ -21,7 +22,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'min_correct', ['enableAjaxValidation' => true])->textInput() ?>
 
-    <?= $form->field($model, 'max_question',['enableAjaxValidation' => true])->textInput() ?>
+    <?= $form->field($model, 'max_question', ['enableAjaxValidation' => true])->textInput() ?>
 
     <?= $form->field($model, 'certificate_valid_time')->dropDownList(['prompt' => 'Select', 'months' => $items]) ?>
     <?= $form->field($model, 'quiz_time')->textInput() ?>
