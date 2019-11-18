@@ -22,7 +22,6 @@ use aneeshikmat\yii2\Yii2TimerCountDown\Yii2TimerCountDown;
 <!--<Include the above in your HEAD tag >-->
 
 
-
 <input value="<?php echo $questions[0]['quiz_id'] ?>" id="2" hidden ?>
 <div class="container-fluid">
     <div class="modal-dialog" id="c">

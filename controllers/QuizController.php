@@ -66,25 +66,15 @@ class QuizController extends Controller
             'model' => $model,
         ]);
     }
-    public function actionLogoutquiz($id){
-            $quizCount = Quiz::find()->where(['id' => $id])->andWhere(['quiz_time' => null])->count();
-            $quiz = Quiz::find()->where(['id' => $id])->andWhere(['not', ['quiz_time' => null]])->one();
-            $progress = Progress::find()->where(['quiz_id' => $id])->andWhere(['passed_by' => Yii::$app->user->identity->id])
-                ->orderBy(['id' => SORT_ASC])->one();
-            $timeLeft = '';
-            if ($quizCount == 0) {
-                echo ' ';
-                $date = strtotime(date("H:i:s", time()) . '+' . '4' . 'hour');
-                $date1 = strtotime(date(" H:i:s", $progress->quiz_start_date) . '+' . '4' . 'hour');
-                $time = ($date - $date1);
-                $times = date('H:i:s', $time);
 
-                if (date('H', strtotime($times)) < $quiz->quiz_time) {
-                   return json_encode($times);
-                } else {
-                    return json_encode('');
-                }
-            }
+    public function actionLogoutquiz($id)
+    {
+        $quiz = new Quiz();
+        if ($quiz->getQuizTimeLeft($id) === true) {
+            return json_encode($quiz->times);
+        } else {
+            return json_encode('');
+        }
     }
 
     public function actionCheckquiztime()
@@ -108,13 +98,13 @@ class QuizController extends Controller
     {
         $quiz = new Quiz();
         if (Yii::$app->request->isAjax) {
-                $data = Yii::$app->request->post();
-                if ($quiz->previousAjax($data) === false) {
-                    return json_encode('error of insert');
-                } else {
-                    return $quiz->previousAjax($data);
-                }
+            $data = Yii::$app->request->post();
+            if ($quiz->previousAjax($data) === false) {
+                return json_encode('error of insert');
+            } else {
+                return $quiz->previousAjax($data);
             }
+        }
     }
 
     public function actionNextselected()
@@ -122,14 +112,14 @@ class QuizController extends Controller
 
         $quiz = new Quiz();
         if (Yii::$app->request->isAjax) {
-                $data = Yii::$app->request->post();
-                if ($quiz->nextAjax($data) === false) {
-                    return json_encode('error of insert');
-                } else {
-                    return $quiz->nextAjax($data);
-                }
-
+            $data = Yii::$app->request->post();
+            if ($quiz->nextAjax($data) === false) {
+                return json_encode('error of insert');
+            } else {
+                return $quiz->nextAjax($data);
             }
+
+        }
     }
 
     public function actionFinish($id, $quizName)
@@ -141,13 +131,13 @@ class QuizController extends Controller
             $quiz->countCorrectAnswers($id);
             if (Yii::$app->request->isPost) {
                 $data = Yii::$app->request->post();
-                if ($quiz->finishAjax($data, $id) === false) {
-                    return json_encode('error of insert');
+                if ($quiz->finishAjax($data, $id) === true) {
+                    return json_encode('Yes');
                 } else {
                     $quiz->insertData($id);
                     $result = $quiz->finishAjax($data, $id);
                     $progress->deleteALL(['quiz_id' => $id, 'passed_by' => Yii::$app->user->identity->id]);
-                    return $result;
+                    return json_encode('No');
                 }
             }
         }
@@ -173,17 +163,21 @@ class QuizController extends Controller
                 foreach ($data['answers'] as $answer) {
                     $array[] = $answer['id'];
                 }
+                $prog = $progress->find()->where(['passed_by' => Yii::$app->user->identity->id])->count();
                 $name = $progress->find()->andwhere(['selected_answer' => $array])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
-                $count = $progress->find()->where(['question_id' => $data['question']])->count();
+                $count = $progress->find()->where(['question_id' => $data['question']])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
+                if ($prog == 0) {
+                    $progress->insertData(null, null, $id, null, 0);
+                }
                 if ($name > 0) {
                     return json_encode($progress->find()->where(['selected_answer' => $array])->asArray()->one());
                 } else if ($count == 0) {
-                    $progress->insertData(null, $data['question'], $id, null, 0);
+                    $progress->insertData(null, $data['question'], $id, null, $data['currentQuestion']);
                 }
             }
             $arr = [];
             $arr[0] = $quiz->getQuestion($id);
-            $arr[1] = $progress->find()->orderBy(['id' => SORT_DESC])
+            $arr[1] = $progress->find()->orderBy(['quiz_start_date' => SORT_DESC])
                 ->andwhere(['quiz_id' => $id])
                 ->andWhere(['passed_by' => Yii::$app->user->identity->id])
                 ->asArray()

@@ -43,6 +43,7 @@ class Quiz extends \yii\db\ActiveRecord
     public $searchModel;
     public $dataProvider;
     public $masivi;
+    public $times;
 
     /**
      * {@inheritdoc}
@@ -166,8 +167,15 @@ class Quiz extends \yii\db\ActiveRecord
     public function errorOfChoose($id)
     {
 
-        $progressCount = Progress::find()->where(['quiz_id' => $id])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
-        $progressData = Progress::find()->where(['quiz_id' => $id])->andWhere(['passed_by' => Yii::$app->user->identity->id])->all();
+        $progressCount = Progress::find()->where(['quiz_id' => $id])
+            ->andWhere(['passed_by' => Yii::$app->user->identity->id])
+            ->andWhere(['not', ['question_id' => null]])
+            ->count();
+        $progressData = Progress::find()->where(['quiz_id' => $id])
+            ->andWhere(['passed_by' => Yii::$app->user->identity->id])
+            ->andWhere(['not', ['question_id' => null]])
+            ->all();
+
         $array = [];
         $counter = 0;;
         for ($i = 0; $i < count($progressData); $i++) {
@@ -315,7 +323,7 @@ class Quiz extends \yii\db\ActiveRecord
 
         if ($count > 0) {
             $progress->updateALL(['question_id' => $data['question'], 'selected_answer'
-            => $data['selected'], 'quiz_id' => $data['quizId'], 'is_correct' => $isCorrect, 'current_question' => $currentQuestion],
+            => $data['selected'], 'quiz_id' => $data['quizId'], 'is_correct' => $isCorrect, 'current_question' => $currentQuestion, 'quiz_start_date' => time()],
                 ['passed_by' => Yii::$app->user->identity->id, 'question_id' => $data['question']]);
         } else {
             $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion);
@@ -360,7 +368,8 @@ class Quiz extends \yii\db\ActiveRecord
 
         if ($count > 0) {
             $progress->updateALL(['question_id' => $data['question'], 'selected_answer'
-            => $data['selected'], 'quiz_id' => $data['quizId'], 'is_correct' => $isCorrect, 'current_question' => $currentQuestion],
+            => $data['selected'], 'quiz_id' => $data['quizId'], 'is_correct' => $isCorrect, 'current_question' => $currentQuestion,
+                'quiz_start_date' => time()],
                 ['passed_by' => Yii::$app->user->identity->id, 'question_id' => $data['question']]);
         } else {
             $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion);
@@ -399,9 +408,9 @@ class Quiz extends \yii\db\ActiveRecord
 
 
         if ($quiz->errorOfChoose($id) === true) {
-            return json_encode('Yes');
+            return true;
         } else {
-            return json_encode('No');
+            return false;
         }
     }
 
@@ -439,6 +448,30 @@ class Quiz extends \yii\db\ActiveRecord
 
     }
 
+    public function getQuizTimeLeft($id)
+    {
+        $quizCount = Quiz::find()->where(['id' => $id])->andWhere(['quiz_time' => null])->count();
+
+        $quiz = Quiz::find()->where(['id' => $id])->andWhere(['not', ['quiz_time' => null]])->one();
+
+        $progress = Progress::find()->where(['quiz_id' => $id])->andWhere(['passed_by' => Yii::$app->user->identity->id])
+            ->orderBy(['id' => SORT_ASC])->one();
+        if ($quizCount == 0) {
+            $date = strtotime(date("H:i:s", time()) . '+' . '4' . 'hour');
+            $date1 = strtotime(date(" H:i:s", $progress->quiz_start_date) . '+' . '4' . 'hour');
+            $time = ($date - $date1);
+            $this->times = date('H:i:s', $time);
+
+            if (date('H', strtotime($this->times)) < $quiz->quiz_time) {
+                return true;
+            } else {
+                $progress->deleteALL(['quiz_id' => $id, 'passed_by' => Yii::$app->user->identity->id]);
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
 
     /**
      * @return \yii\db\ActiveQuery

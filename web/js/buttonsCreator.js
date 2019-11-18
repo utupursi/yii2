@@ -1,3 +1,8 @@
+let nextButton = document.getElementById('nextButton');
+let Container;
+let previousButton;
+let finishButton;
+
 export function PreviousButtonCreator() {
     let preButton = document.createElement('button');
     preButton.setAttribute('id', 'PreviousButton');
