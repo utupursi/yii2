@@ -66,8 +66,25 @@ class QuizController extends Controller
             'model' => $model,
         ]);
     }
-    public function actionLogoutquiz(){
+    public function actionLogoutquiz($id){
+            $quizCount = Quiz::find()->where(['id' => $id])->andWhere(['quiz_time' => null])->count();
+            $quiz = Quiz::find()->where(['id' => $id])->andWhere(['not', ['quiz_time' => null]])->one();
+            $progress = Progress::find()->where(['quiz_id' => $id])->andWhere(['passed_by' => Yii::$app->user->identity->id])
+                ->orderBy(['id' => SORT_ASC])->one();
+            $timeLeft = '';
+            if ($quizCount == 0) {
+                echo ' ';
+                $date = strtotime(date("H:i:s", time()) . '+' . '4' . 'hour');
+                $date1 = strtotime(date(" H:i:s", $progress->quiz_start_date) . '+' . '4' . 'hour');
+                $time = ($date - $date1);
+                $times = date('H:i:s', $time);
 
+                if (date('H', strtotime($times)) < $quiz->quiz_time) {
+                   return json_encode($times);
+                } else {
+                    return json_encode('');
+                }
+            }
     }
 
     public function actionCheckquiztime()
@@ -91,7 +108,6 @@ class QuizController extends Controller
     {
         $quiz = new Quiz();
         if (Yii::$app->request->isAjax) {
-            if (Yii::$app->request->isPost) {
                 $data = Yii::$app->request->post();
                 if ($quiz->previousAjax($data) === false) {
                     return json_encode('error of insert');
@@ -99,8 +115,6 @@ class QuizController extends Controller
                     return $quiz->previousAjax($data);
                 }
             }
-
-        }
     }
 
     public function actionNextselected()
@@ -108,7 +122,6 @@ class QuizController extends Controller
 
         $quiz = new Quiz();
         if (Yii::$app->request->isAjax) {
-            if (Yii::$app->request->isPost) {
                 $data = Yii::$app->request->post();
                 if ($quiz->nextAjax($data) === false) {
                     return json_encode('error of insert');
@@ -117,8 +130,6 @@ class QuizController extends Controller
                 }
 
             }
-        }
-
     }
 
     public function actionFinish($id, $quizName)
@@ -227,31 +238,11 @@ class QuizController extends Controller
                 'arrayOfQuizId' => $quiz->progressQuizId(),
             ]);
         } else {
-            $quizCount = Quiz::find()->where(['id' => $id])->andWhere(['quiz_time' => null])->count();
-            $quiz = Quiz::find()->where(['id' => $id])->andWhere(['not', ['quiz_time' => null]])->one();
-            $progress = Progress::find()->where(['quiz_id' => $id])
-                ->andWhere(['passed_by' => Yii::$app->user->identity->id])
-                ->orderBy(['id' => SORT_ASC])
-                ->one();
-            $timeLeft = '';
-            if ($quizCount == 0) {
-                echo ' ';
-                $date = strtotime(date("H:i:s", time()) . '+' . '4' . 'hour');
-                $date1 = strtotime(date(" H:i:s", $progress->quiz_start_date) . '+' . '4' . 'hour');
-                $time = ($date - $date1);
-                $times = date('H:i:s', $time);
-
-                if (date('H', strtotime($times)) < $quiz->quiz_time) {
-                    $timeLeft = $times;
-                } else {
-                    $timeLeft = '';
-                }
-            }
 
             return $this->render('quiz_template', [
+
                 'questions' => $quiz->getQuestion($id),
                 'quiz' => $quiz->getQuiz($id),
-                'timeLeft' => $timeLeft,
             ]);
         }
 

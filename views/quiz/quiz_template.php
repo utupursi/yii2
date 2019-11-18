@@ -21,7 +21,7 @@ use aneeshikmat\yii2\Yii2TimerCountDown\Yii2TimerCountDown;
 <!--<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>-->
 <!--<Include the above in your HEAD tag >-->
 
-<?php echo $timeLeft ?>
+
 
 <input value="<?php echo $questions[0]['quiz_id'] ?>" id="2" hidden ?>
 <div class="container-fluid">

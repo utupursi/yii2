@@ -1,29 +1,33 @@
+//
+// import {PreviousButtonCreator,NextButtonCreator,FinishButtonCreator} from "./buttonsCreator";
 let score = 0;
 let quiz = document.getElementById('quiz');
 let questionEl = document.getElementById('question');
 let option = document.getElementsByName('selectedAnswer');
 let quiz_id = document.getElementById('2').value;
 let options = document.getElementsByName('option');
-let nextButton = document.getElementById('nextButton');
-let Container;
-let previousButton;
-let finishButton;
+ let nextButton = document.getElementById('nextButton');
+ let Container;
+ let previousButton;
+ let finishButton;
 
-// setInterval(function () {
-//     $.ajax({
-//         type: 'get',
-//     {
-//         success: function (data) {
-//             console.log()
-//         }
-//         error: function () {
-//             console.log("error");
-//         }
-//     }
-// )
-//     ;
-// }), 1000
-// })
+setInterval(function(){$.ajax({
+    url: `/quiz/logoutquiz?id=${quiz_id}`,
+    type: 'get',
+    aysnc: false,
+    data: {_csrf: yii.getCsrfToken()},
+    success: function (data) {
+        let currentQuestion;
+        data = JSON.parse(data);
+        if(data=='') {
+            window.location.href = `finish?id=${quiz_id}&&quizName=${quizName.textContent}`;
+        }
+    },
+    error: function (result) {
+
+    }
+
+})},1000);
 let data = $.ajax({
     url: `/quiz/quiz?id=${quiz_id}`,
     type: 'get',
@@ -46,10 +50,6 @@ let data = $.ajax({
 
 
 function callback(data, currentQuestion) {
-
-
-    nextButton.onclick = loadNextQuestion;
-
     function PreviousButtonCreator() {
         let preButton = document.createElement('button');
         preButton.setAttribute('id', 'PreviousButton');
@@ -62,7 +62,7 @@ function callback(data, currentQuestion) {
         previousButton.onclick = loadPreviousQuestion;
     }
 
-    function NextButtonCreator() {
+     function NextButtonCreator() {
         nextButton = document.createElement('button');
         nextButton.setAttribute('id', 'nextButton');
         nextButton.setAttribute('class', 'btn btn-success');
@@ -85,6 +85,8 @@ function callback(data, currentQuestion) {
         finishButton.onclick = sentData;
     }
 
+
+    nextButton.onclick = loadNextQuestion;
     function sentData() {
         let selectedOption;
         if (document.querySelector('input[name="option"]:checked') != null) {
