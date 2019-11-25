@@ -92,6 +92,35 @@ class Progress extends \yii\db\ActiveRecord
 
     }
 
+    public function startFromCurrentQuiz($data, $id)
+    {
+        $array = [];
+        foreach ($data['answers'] as $answer) {
+            $array[] = $answer['id'];
+        }
+
+        $quizStartOrNot = $this->find()->where(['passed_by' => Yii::$app->user->identity->id])->count();
+        $selectedAnswer = $this->find()->andwhere(['selected_answer' => $array])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
+        $count = $this->find()->where(['question_id' => $data['question']])->andWhere(['passed_by' => Yii::$app->user->identity->id])->count();
+        if ($quizStartOrNot == 0) {
+            $this->insertData(null, null, $id, null, 0);
+        }
+        if ($selectedAnswer > 0) {
+            return json_encode($this->find()->where(['selected_answer' => $array])->asArray()->one());
+        } else if ($count == 0) {
+            $this->insertData(null, $data['question'], $id, null, $data['currentQuestion']);
+        }
+    }
+
+    public function quizStartDate($id)
+    {
+        return $this->find()->orderBy(['quiz_start_date' => SORT_DESC])
+            ->andwhere(['quiz_id' => $id])
+            ->andWhere(['passed_by' => Yii::$app->user->identity->id])
+            ->asArray()
+            ->one();
+    }
+
 
     /**
      * @return \yii\db\ActiveQuery

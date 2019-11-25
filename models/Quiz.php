@@ -326,7 +326,9 @@ class Quiz extends \yii\db\ActiveRecord
             => $data['selected'], 'quiz_id' => $data['quizId'], 'is_correct' => $isCorrect, 'current_question' => $currentQuestion, 'quiz_start_date' => time()],
                 ['passed_by' => Yii::$app->user->identity->id, 'question_id' => $data['question']]);
         } else {
-            $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion);
+            if (!$progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion)) {
+                return false;
+            }
         }
 
         $array = [];
@@ -372,7 +374,9 @@ class Quiz extends \yii\db\ActiveRecord
                 'quiz_start_date' => time()],
                 ['passed_by' => Yii::$app->user->identity->id, 'question_id' => $data['question']]);
         } else {
-            $progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion);
+            if (!$progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion)) {
+                return false;
+            }
         }
 
         $name = $progress->find()->where(['selected_answer' => $array])
@@ -405,11 +409,18 @@ class Quiz extends \yii\db\ActiveRecord
             => $data['selected'], 'quiz_id' => $data['quizId'], 'is_correct' => $isCorrect, 'current_question' => $currentQuestion],
                 ['passed_by' => Yii::$app->user->identity->id, 'question_id' => $data['question']]);
         }
+        else{
+            if (!$progress->insertData($data['selected'], $data['question'], $data['quizId'], $isCorrect, $currentQuestion)) {
+                return false;
+            }
+        }
 
 
         if ($quiz->errorOfChoose($id) === true) {
             return true;
         } else {
+            $quiz->insertData($id);
+            $progress->deleteALL(['quiz_id' => $id, 'passed_by' => Yii::$app->user->identity->id]);
             return false;
         }
     }
