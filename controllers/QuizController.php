@@ -30,24 +30,41 @@ class QuizController extends Controller
      */
     public function behaviors()
     {
-        return [
+        return array_merge(parent::behaviors(), [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
                 ],
             ],
-            [
-                'class' => AccessControl::className(),
-                'only' => ['index', 'update', 'view', 'create'],
+            'access' => [
+                'class' => AccessControl::class,
+                'only' => ['index', 'update', 'delete', 'create'],
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['@']
+                        'actions' => ['index'],
+                        'roles' => ['viewQuiz'],
                     ],
-                ],
-            ],
-        ];
+                    [
+                        'allow' => true,
+                        'actions' => ['update'],
+                        'roles' => ['updateQuiz'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['delete'],
+                        'roles' => ['deleteQuiz'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['create'],
+                        'roles' => ['createQuiz'],
+                    ],
+
+                ]
+            ]
+        ]);
     }
 
     /**
@@ -155,7 +172,7 @@ class QuizController extends Controller
         if (Yii::$app->request->isAjax) {
             if (Yii::$app->request->isPost) {
                 $data = Yii::$app->request->post();
-               return  $progress->startFromCurrentQuiz($data, $id);
+                return $progress->startFromCurrentQuiz($data, $id);
             }
             $arr = [];
             $arr[0] = $quiz->getQuestion($id);

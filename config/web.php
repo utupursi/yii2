@@ -56,6 +56,9 @@ $config = [
 //                'article/<id>'=>'article/view'
             ],
         ],
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+        ],
 
     ],
     'params' => $params,
